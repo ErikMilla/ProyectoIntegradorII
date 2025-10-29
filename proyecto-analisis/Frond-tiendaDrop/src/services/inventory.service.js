@@ -38,8 +38,13 @@ const InventoryService = {
     return api.delete(`/marcas/${id}`);
   },
   
-  // === PRODUCTOS (A IMPLEMENTAR LUEGO) ===
-  // ...
+  // === PRODUCTOS ===
+  createProduct: (productData) => {
+    return api.post('/productos', productData);
+  },
+  getAllProductos: () => {
+      return api.get('/productos');
+  }
 };
 
 export default InventoryService;

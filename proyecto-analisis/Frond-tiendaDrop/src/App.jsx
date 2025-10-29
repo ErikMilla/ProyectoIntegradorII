@@ -1,5 +1,6 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// src/App.jsx (CÓDIGO CORREGIDO)
+// ** Importar useLocation para usarlo en AppContent **
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 import Login from './pages/Login';
 import Registro from './pages/Registro';
@@ -10,15 +11,18 @@ import IntranetAdmin from './pages/intranet/Admin';
 import IntranetAlmacen from './pages/intranet/Almacen';
 import IntranetVendedor from './pages/intranet/Vendedor';
 
-// Nuevo componente para aplicar la lógica condicional
+// El componente principal que aplica la lógica condicional al Navbar
 function AppContent() {
+  // Obtenemos la ruta actual
   const location = useLocation();
-  // Esta variable será TRUE si la ruta actual es /intranet-admin, /intranet-almacen, etc.
+  
+  // Condición: TRUE si la ruta comienza con '/intranet-'
   const isIntranet = location.pathname.startsWith('/intranet-'); 
 
   return (
     <div className="App">
-      {/* Condición: Solo renderiza el Navbar si NO estamos en una intranet */}
+      
+      {/* Condición: SOLO renderiza el Navbar si NO es una intranet */}
       {!isIntranet && <Navbar />} 
 
       <Routes>
@@ -37,25 +41,11 @@ function AppContent() {
   );
 }
 
+// La función principal App solo envuelve AppContent en el Router
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Navbar />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-
-          {/* Auth */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
-
-          {/* Intranets por rol - CON GUION */}
-          <Route path="/intranet-admin" element={<IntranetAdmin />} />
-          <Route path="/intranet-almacen" element={<IntranetAlmacen />} />
-          <Route path="/intranet-vendedor" element={<IntranetVendedor />} />
-        </Routes>
-      </div>
+        <AppContent /> 
     </Router>
   );
 }
