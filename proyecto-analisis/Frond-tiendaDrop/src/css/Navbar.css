@@ -1,0 +1,354 @@
+/* src/css/Navbar.css */
+
+/* Navbar Principal */
+.navbar-sneakers {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d0000 100%);
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(220, 20, 60, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid #dc143c;
+}
+
+.navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+/* Sección del Brand/Logo */
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo {
+  font-size: 2rem;
+  text-decoration: none;
+  color: white;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.3s ease;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.brand-logo:hover {
+  transform: translateY(-2px);
+}
+
+.brand-icon {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 0 10px rgba(220, 20, 60, 0.6));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0); 
+  }
+  50% { 
+    transform: translateY(-5px); 
+  }
+}
+
+.brand-text {
+  background: linear-gradient(135deg, #fff 0%, #dc143c 50%, #ff1744 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Arial Black', 'Arial Bold', sans-serif;
+  letter-spacing: 1px;
+}
+
+/* Botón Hamburguesa */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.hamburger:hover {
+  color: #dc143c;
+  transform: scale(1.1);
+}
+
+/* Enlaces de Navegación */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  list-style: none;
+}
+
+.nav-links a,
+.nav-links button {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  background: rgba(220, 20, 60, 0.2);
+  border-color: #dc143c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
+}
+
+/* Acciones de navegación (botones de sesión) */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-actions a {
+  text-decoration: none;
+}
+
+/* Botón Iniciar Sesión */
+.btn-login {
+  background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(220, 20, 60, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+.btn-login:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(220, 20, 60, 0.6);
+  background: linear-gradient(135deg, #ff1744 0%, #dc143c 100%);
+}
+
+/* Botón Registro */
+.btn-register {
+  background: transparent;
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px;
+  border: 2px solid #dc143c;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+.btn-register:hover {
+  background: #dc143c;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(220, 20, 60, 0.5);
+}
+
+/* Botón Cerrar Sesión */
+.btn-logout {
+  background: transparent;
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px;
+  border: 2px solid #666;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+.btn-logout:hover {
+  background: #666;
+  border-color: #888;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(100, 100, 100, 0.5);
+}
+
+/* Nombre de Usuario */
+.user-name {
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: rgba(220, 20, 60, 0.2);
+  border-radius: 20px;
+  border: 1px solid rgba(220, 20, 60, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Botones de Iconos */
+.icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(220, 20, 60, 0.5);
+  color: white;
+  padding: 0.6rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  width: 45px;
+  height: 45px;
+  position: relative;
+}
+
+.icon-btn:hover {
+  background: #dc143c;
+  border-color: #dc143c;
+  transform: rotate(15deg) scale(1.1);
+}
+
+/* Badge del carrito */
+.cart-btn {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff1744;
+  color: white;
+  border-radius: 50%;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(255, 23, 68, 0.6);
+}
+
+/* RESPONSIVE */
+
+/* Tablets */
+@media (max-width: 968px) {
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 70px;
+    left: -100%;
+    flex-direction: column;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2d0000 100%);
+    width: 100%;
+    padding: 2rem;
+    transition: left 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-top: 2px solid #dc143c;
+    align-items: flex-start;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+
+  .nav-links.show {
+    left: 0;
+  }
+
+  .nav-links li {
+    width: 100%;
+  }
+
+  .nav-links a,
+  .nav-links button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(220, 20, 60, 0.3);
+  }
+
+  .btn-login,
+  .btn-register,
+  .btn-logout {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-name {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .icon-btn {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .navbar-container {
+    padding: 1rem;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .brand-logo {
+    font-size: 1.5rem;
+  }
+
+  .brand-icon {
+    font-size: 1.7rem;
+  }
+
+  .navbar-container {
+    padding: 0.8rem;
+  }
+
+  .nav-links {
+    top: 60px;
+    max-height: calc(100vh - 60px);
+  }
+}
