@@ -21,7 +21,8 @@ public class producto {
     @JoinColumn(name = "categopria_id")
     private categoria categoria_id;
     
-    
+    public producto() {
+    }
 
     public String getNombre() {
         return nombre;

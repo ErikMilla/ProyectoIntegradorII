@@ -1,8 +1,7 @@
 
 package com.dropStore.DropStore.Dto;
 
-
-public class ProductoRegistroDTO {
+public class ProductoRegistroDTO { // Renombrado sugerido: ProductoMaestroDTO
     // Campos de la entidad 'producto'
     private String nombre;
     private String modelo;
@@ -12,19 +11,13 @@ public class ProductoRegistroDTO {
     private String descripcion;
     private Long categoriaId; // ID de la Categoría seleccionada
     
-    // Campos de la entidad 'detalle_producto'
-    private String genero;
-    private double talla;
-    private int stock;
-    private String color;
-    private Long marcaId; // ID de la Marca seleccionada
-    // Asumimos que el proveedor_id se puede añadir más tarde o se establece fijo por ahora
+    // CAMPOS DE VARIANTE (genero, talla, stock, color, marcaId) FUERON ELIMINADOS
     
     // Getters y Setters
     public String getNombre() {
         return nombre;
     }
-
+    // ... (El resto de getters y setters para nombre, modelo, foto, precioCompra, precioVenta, descripcion, categoriaId)
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -75,45 +68,5 @@ public class ProductoRegistroDTO {
 
     public void setCategoriaId(Long categoriaId) {
         this.categoriaId = categoriaId;
-    }
-
-    public String getGenero() {
-        return genero;
-    }
-
-    public void setGenero(String genero) {
-        this.genero = genero;
-    }
-
-    public double getTalla() {
-        return talla;
-    }
-
-    public void setTalla(double talla) {
-        this.talla = talla;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public Long getMarcaId() {
-        return marcaId;
-    }
-
-    public void setMarcaId(Long marcaId) {
-        this.marcaId = marcaId;
     }
 }

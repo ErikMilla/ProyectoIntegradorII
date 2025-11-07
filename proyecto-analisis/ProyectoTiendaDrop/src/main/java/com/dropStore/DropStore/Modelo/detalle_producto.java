@@ -3,13 +3,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.dropStore.DropStore.Modelo;
+
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="detalle_producto")
+@Table(name = "detalle_producto")
 public class detalle_producto {
+
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String genero;
     private double talla;
@@ -18,13 +20,17 @@ public class detalle_producto {
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
     private Proveedor proveedor;
-    @ManyToOne
-   @JoinColumn(name = "producto_id")
-    private producto producto_id;
-    @ManyToOne
-   @JoinColumn(name ="marca_id")
-     private marca marca_id;
+    @ManyToOne(fetch = FetchType.EAGER) // Ya corregimos a EAGER
+    @JoinColumn(name = "producto_id")
+    private producto producto;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "marca_id")
+    private marca marca;
+    
+    public detalle_producto() {
+    }
+    
     public String getGenero() {
         return genero;
     }
@@ -64,23 +70,7 @@ public class detalle_producto {
     public void setProveedor(Proveedor proveedor) {
         this.proveedor = proveedor;
     }
-
-    public producto getProducto_id() {
-        return producto_id;
-    }
-
-    public void setProducto_id(producto producto_id) {
-        this.producto_id = producto_id;
-    }
-
-    public marca getMarca_id() {
-        return marca_id;
-    }
-
-    public void setMarca_id(marca marca_id) {
-        this.marca_id = marca_id;
-    }
-
+    
     public long getId() {
         return id;
     }
@@ -88,7 +78,20 @@ public class detalle_producto {
     public void setId(long id) {
         this.id = id;
     }
-    
-    
-    
+
+    public producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(producto producto) {
+        this.producto = producto;
+    }
+
+    public marca getMarca() {
+        return marca;
+    }
+
+    public void setMarca(marca marca) {
+        this.marca = marca;
+    }
 }

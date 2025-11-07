@@ -1,49 +1,46 @@
-// Frond-tiendaDrop/src/pages/intranet/Almacen.jsx (MODIFICADO COMPLETAMENTE)
-
 import React, { useState } from 'react';
-// Importar los nuevos componentes
-import SidebarAlmacen from '../../components/almacen/SidebarAlmacen'; 
+import SidebarAlmacen from '../../components/almacen/SidebarAlmacen';
+import InventarioManagement from '../../components/almacen/InventarioManagement';
 import CategoriaManagement from '../../components/almacen/CategoriaManagement';
 import MarcaManagement from '../../components/almacen/MarcaManagement';
-import InventarioManagement from '../../components/almacen/InventarioManagement';
 
-export default function IntranetAlmacen() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  // Estado para controlar qué sección está activa
-  const [seccionActiva, setSeccionActiva] = useState('inventario');
+// Asegúrate de importar tu CSS aquí (ejemplo de nombre)
+import '../../css/intranet.css'; 
 
-  const renderSeccion = () => {
-    switch (seccionActiva) {
-      case 'categorias':
-        return <CategoriaManagement />;
-      case 'marcas':
-        return <MarcaManagement />;
-      case 'inventario':
-      default:
-        return <InventarioManagement />;
-    }
-  };
+function IntranetAlmacen() {
+    const [seccionActiva, setSeccionActiva] = useState('inventario');
+    
+    const renderContent = () => {
+        switch (seccionActiva) {
+            case 'inventario':
+                return <InventarioManagement />;
+            case 'categorias':
+                return <CategoriaManagement />;
+            case 'marcas':
+                return <MarcaManagement />;
+            default:
+                return <div>Selecciona una opción del menú.</div>;
+        }
+    };
 
-  return (
-    <div className="intranet-layout">
-      {/* 1. Menú Lateral */}
-      <SidebarAlmacen 
-        seccionActiva={seccionActiva} 
-        setSeccionActiva={setSeccionActiva} 
-      />
-      
-      {/* 2. Contenido Principal */}
-      <div className="intranet-content">
-        <h1>Intranet Almacén - Control de Catálogo</h1>
-        <p>
-            Bienvenido, **{user.nombre} {user.apellido}** | Rol: **{user.rol}**
-        </p>
-        
-        {/* Renderiza el componente de gestión activo */}
-        <div style={{ marginTop: '30px' }}>
-          {renderSeccion()}
+    return (
+        // 🚨 CAMBIO CLAVE: Usamos la clase intranet-layout para el contenedor principal
+        <div className="intranet-layout">
+            
+            {/* 1. Barra Lateral */}
+            <SidebarAlmacen 
+                seccionActiva={seccionActiva} 
+                setSeccionActiva={setSeccionActiva} 
+            />
+            
+            {/* 2. Contenido Principal */}
+            <div className="intranet-content">
+                <h1>Control de Catálogo y Logística</h1>
+                <p>Bienvenido. Utiliza el menú lateral para gestionar productos, tallas y stock.</p>
+                {renderContent()}
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
+
+export default IntranetAlmacen;
