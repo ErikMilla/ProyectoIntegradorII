@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class DetalleRegistroDTO implements Serializable {
     
-    // Campos que estaban en detalle_producto
+    private Long id;
     private String genero;
     private double talla;
     private int stock;
@@ -52,4 +52,13 @@ public class DetalleRegistroDTO implements Serializable {
     public void setMarcaId(Long marcaId) {
         this.marcaId = marcaId;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
 }

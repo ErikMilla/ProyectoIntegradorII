@@ -2,7 +2,7 @@
 package com.dropStore.DropStore.Dto;
 
 public class ProductoRegistroDTO { // Renombrado sugerido: ProductoMaestroDTO
-    // Campos de la entidad 'producto'
+    private Long id;
     private String nombre;
     private String modelo;
     private String foto; // URL o nombre de archivo
@@ -69,4 +69,14 @@ public class ProductoRegistroDTO { // Renombrado sugerido: ProductoMaestroDTO
     public void setCategoriaId(Long categoriaId) {
         this.categoriaId = categoriaId;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    
 }

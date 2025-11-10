@@ -1,59 +1,35 @@
 import React, { useState } from 'react';
 import AuthService from '../services/auth.service.js';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext.jsx'; 
 
 function Login() {
-  const [correo, setCorreo] = useState('');
-  const [contraseña, setContraseña] = useState('');
-  const [mensaje, setMensaje] = useState('');
-  const navigate = useNavigate();
+  const [correo, setCorreo] = useState('');
+  const [contraseña, setContraseña] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  
+  // 3. Traemos la función 'login' del contexto
+  const { login } = useAuth(); 
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setMensaje('');
+  const handleLogin = async (e) => { // 4. Hacemos la función async
+    e.preventDefault();
+    setMensaje('');
 
-    console.log('=== DEBUG LOGIN ===');
-    console.log('Correo state:', correo);
-    console.log('Contraseña state:', contraseña);
+    if (!correo || !contraseña) {
+      setMensaje('El correo y la contraseña son obligatorios.');
+      return;
+    }
 
-    if (!correo || !contraseña) {
-      setMensaje('El correo y la contraseña son obligatorios.');
-      return;
+    // 5. LLAMAMOS A LA FUNCIÓN DEL CONTEXTO
+    const credentials = { correo, contraseña };
+    const result = await login(credentials);
+
+    // 6. Si el login falló, el contexto nos devuelve el error
+    if (!result.success) {
+        setMensaje(result.error);
     }
-
-    const credentials = { correo, contraseña };
-    console.log('Credentials a enviar:', credentials);
-
-    AuthService.login(credentials)
-      .then((res) => {
-        console.log('Login exitoso:', res.data);
-        const user = res.data;
-        localStorage.setItem('user', JSON.stringify(user));
-
-        switch (user.rol) {
-          case 'ADMIN':
-            navigate('/intranet-admin');
-            break;
-          case 'ALMACENERO':
-            navigate('/intranet-almacen');
-            break;
-          case 'VENDEDOR':
-            navigate('/intranet-vendedor');
-            break;
-          default:
-            navigate('/');
-        }
-      })
-      .catch((error) => {
-        console.error('Error de login completo:', error);
-        console.error('Error response:', error.response);
-        setMensaje(
-          error.response?.data?.error ||
-            'Error al iniciar sesión. Verifica tus credenciales.'
-        );
-      });
-  };
-
+    // (Si el login tuvo éxito, el AuthContext ya se encargó de redirigir)
+  };
   return (
     <div style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
       <h2>Iniciar Sesión</h2>
