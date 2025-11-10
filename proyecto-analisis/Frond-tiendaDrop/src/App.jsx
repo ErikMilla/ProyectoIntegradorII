@@ -1,6 +1,6 @@
 // src/App.jsx
 
-import React from 'react'; // <-- Importante: Asegúrate que React esté importado
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 import Login from './pages/Login';
@@ -20,7 +20,12 @@ import { CartProvider } from './pages/CartContext.jsx';
 import { AuthProvider } from './pages/AuthContext.jsx';
 
 import CartPage from './pages/CartPage.jsx';
-// LA FUNCIÓN AppContent NO CAMBIA NADA
+
+// 1. IMPORTAMOS LAS NUEVAS PÁGINAS
+import ProcesoPago from './pages/ProcesoPago.jsx';
+import OrdenConfirmada from './pages/OrdenConfirmada.jsx';
+
+// LA FUNCIÓN AppContent
 function AppContent() {
     const location = useLocation();
     const isIntranet = location.pathname.startsWith('/intranet-');
@@ -35,7 +40,15 @@ function AppContent() {
                     <Route path="/catalogo/:genero?" element={<Catalogo />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/registro" element={<Registro />} />
-                    <Route path="/carrito" element={<CartPage />} />
+                    
+                    {/* Tu ruta del carrito ya estaba bien */}
+                    <Route path="/carrito" element={<CartPage />} /> 
+                    
+                    {/* 2. AÑADIMOS LAS RUTAS DE PAGO */}
+                    <Route path="/proceso-pago" element={<ProcesoPago />} />
+                    <Route path="/orden-confirmada" element={<OrdenConfirmada />} />
+
+                    {/* Tus rutas de intranet */}
                     <Route path="/intranet-admin" element={<IntranetAdmin />} />
                     <Route path="/intranet-almacen" element={<IntranetAlmacen />} />
                     <Route path="/intranet-vendedor" element={<IntranetVendedor />} />
@@ -46,15 +59,12 @@ function AppContent() {
     );
 }
 
-// AQUÍ ESTÁ EL CAMBIO IMPORTANTE
+// El resto de tu archivo (App) está perfecto
 function App() {
     return (
-        // 1. El <Router> DEBE ir AFUERA de todo
         <Router>
-            {/* 2. Los Providers van ADENTRO del Router */}
             <AuthProvider>
                 <CartProvider>
-                    {/* 3. AppContent ahora hereda todo */}
                     <AppContent />
                 </CartProvider>
             </AuthProvider>

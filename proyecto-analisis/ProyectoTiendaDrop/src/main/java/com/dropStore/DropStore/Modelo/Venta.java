@@ -1,4 +1,3 @@
-
 package com.dropStore.DropStore.Modelo;
 import jakarta.persistence.*;
 import java.util.Date;
@@ -9,14 +8,35 @@ public class Venta {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
+    
     private Date fecha;
     private String tipo_venta;
+    
+    // --- CAMPOS NUEVOS AÑADIDOS ---
+    
+    // Mapeamos el campo 'subtotal' de Java a la columna 'subtotal' de SQL
+    @Column(name = "subtotal")
+    private Double subtotal;
+    
+    // Mapeamos el campo 'igv' de Java a la columna 'igv' de SQL
+    @Column(name = "igv")
+    private Double igv;
+    
+    // Mapeamos el campo 'costoEnvio' (camelCase) a la columna 'costo_envio' (snake_case)
+    @Column(name = "costo_envio")
+    private Double costoEnvio;
+    
+    // --- FIN DE CAMPOS NUEVOS ---
+    
     private Double total;
     private String metodo_pago;
+    
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    // --- Getters y Setters existentes ---
+    
     public Date getFecha() {
         return fecha;
     }
@@ -65,5 +85,29 @@ public class Venta {
         this.id = id;
     }
     
-    
+    // --- Getters y Setters NUEVOS ---
+
+    public Double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(Double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public Double getIgv() {
+        return igv;
+    }
+
+    public void setIgv(Double igv) {
+        this.igv = igv;
+    }
+
+    public Double getCostoEnvio() {
+        return costoEnvio;
+    }
+
+    public void setCostoEnvio(Double costoEnvio) {
+        this.costoEnvio = costoEnvio;
+    }
 }

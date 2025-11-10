@@ -166,9 +166,9 @@ function CartPage() {
                 <div style={styles.itemsList}>
                     {cartItems.map(item => (
                         <div key={item.id} style={styles.cartItem}>
-                            <img 
-                                src={`http://localhost:8081${item.foto}`} 
-                                alt={item.nombre} 
+                            <img
+                                src={`http://localhost:8081${item.foto}`}
+                                alt={item.nombre}
                                 style={styles.itemImage}
                             />
                             <div style={styles.itemDetails}>
@@ -176,16 +176,15 @@ function CartPage() {
                                 <p style={styles.itemPrice}>S/ {item.prcio_venta.toFixed(2)}</p>
                                 <p style={styles.itemQuantity}>Cantidad: {item.quantity}</p>
                             </div>
-                            <button 
-                                onClick={() => removeItem(item.id)}
-                                style={styles.removeItemBtn}
+                            <button
+                                onClick={() => removeItem(item.varianteId)} style={styles.removeItemBtn}
                             >
                                 Quitar
                             </button>
                         </div>
                     ))}
-                    <button 
-                        onClick={clearCart} 
+                    <button
+                        onClick={clearCart}
                         style={{ ...styles.removeItemBtn, backgroundColor: '#f39c12', marginTop: '20px' }}
                     >
                         Vaciar Carrito

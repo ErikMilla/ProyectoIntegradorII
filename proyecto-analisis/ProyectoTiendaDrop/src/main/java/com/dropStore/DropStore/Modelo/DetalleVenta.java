@@ -1,21 +1,41 @@
-
 package com.dropStore.DropStore.Modelo;
+
 import jakarta.persistence.*;
+
 @Entity
 @Table(name="detalle_venta")
 public class DetalleVenta {
-    @Id    
+
+    @Id     
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
+    
     private int cantidad;
     private double costo;
-    private double envio; 
+    private double envio;   
+    
     @ManyToOne
-    @JoinColumn(name = "venta_id")
+    @JoinColumn(name = "venta_id") // Esto se queda igual, está correcto
     private Venta venta_id;
+    
+    // --- ¡ESTE ES EL CAMBIO IMPORTANTE! ---
+    
     @ManyToOne
-    @JoinColumn(name = "producto_id")
-    private producto producto_id;
+    @JoinColumn(name = "detalle_producto_id") // 1. Apuntamos a la NUEVA columna de la BD
+    private detalle_producto detalle_producto; // 2. Apuntamos a la Entidad "DetalleProducto"
+    
+    // --- Fin del Cambio ---
+
+
+    // --- Getters y Setters ---
+    
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public int getCantidad() {
         return cantidad;
@@ -49,22 +69,12 @@ public class DetalleVenta {
         this.venta_id = venta_id;
     }
 
-    public producto getProducto_id() {
-        return producto_id;
+    // 3. Getters y Setters actualizados para la nueva relación
+    public detalle_producto getDetalle_producto() {
+        return detalle_producto;
     }
 
-    public void setProducto_id(producto producto_id) {
-        this.producto_id = producto_id;
+    public void setDetalle_producto(detalle_producto detalle_producto) {
+        this.detalle_producto = detalle_producto;
     }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-    
-    
-        
 }
