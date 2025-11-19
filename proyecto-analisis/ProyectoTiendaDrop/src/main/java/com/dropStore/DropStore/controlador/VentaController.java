@@ -20,7 +20,9 @@ public class VentaController {
     @Autowired
     private IVentaService ventaService;
 
-    // Este es el endpoint que llamará React
+    @Autowired
+    private com.dropStore.DropStore.Repositorio.VentaRepository ventaRepository;
+    
     @PostMapping
     public ResponseEntity<?> crearVenta(@RequestBody VentaRequestDto ventaDto) {
         try {
@@ -51,5 +53,11 @@ public class VentaController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(historial);
+    }
+    
+    @GetMapping("/todas")
+    public ResponseEntity<List<Venta>> getAllVentas() {
+        // Necesitas agregar findAll() en tu servicio o llamar al repo
+        return ResponseEntity.ok(ventaRepository.findAll()); 
     }
 }

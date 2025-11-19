@@ -15,7 +15,10 @@ const VentaService = {
 
    getHistorial: (usuarioId) => {
     return api.get(`/usuario/${usuarioId}`);
-  }
+  },
+  getAllVentas: () => {
+    return api.get('/todas'); // Llama al nuevo endpoint del backend
+  },
 };
 
 
