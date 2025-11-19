@@ -4,6 +4,7 @@ import com.dropStore.DropStore.Dto.VentaRequestDto;
 import com.dropStore.DropStore.Exception.StockInsuficienteException;
 import com.dropStore.DropStore.Modelo.Venta;
 import com.dropStore.DropStore.service.IVentaService; // Importas la interfaz
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,5 +42,14 @@ public class VentaController {
                 HttpStatus.INTERNAL_SERVER_ERROR // O 404 si prefieres
             );
         }
+    }
+    
+        @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<Venta>> getVentasPorUsuario(@PathVariable Long id) {
+        List<Venta> historial = ventaService.listarVentasPorUsuario(id);
+        if (historial.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(historial);
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class VentaServiceImpl implements IVentaService {
@@ -102,4 +103,8 @@ public class VentaServiceImpl implements IVentaService {
         // 4. Devolver la venta guardada
         return ventaGuardada;
     }
+
+    @Override
+    public List<Venta> listarVentasPorUsuario(Long usuarioId) {
+ return ventaRepository.findByUsuario_IdOrderByFechaDesc(usuarioId);    }
 }
