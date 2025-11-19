@@ -1,23 +1,19 @@
 
 package com.dropStore.DropStore.Dto;
 
-public class ProductoRegistroDTO { // Renombrado sugerido: ProductoMaestroDTO
+public class ProductoRegistroDTO { 
     private Long id;
     private String nombre;
     private String modelo;
-    private String foto; // URL o nombre de archivo
+    private String foto; 
     private double precioCompra;
     private double precioVenta;
     private String descripcion;
-    private Long categoriaId; // ID de la Categoría seleccionada
-    
-    // CAMPOS DE VARIANTE (genero, talla, stock, color, marcaId) FUERON ELIMINADOS
-    
-    // Getters y Setters
+    private Long categoriaId; 
+
     public String getNombre() {
         return nombre;
     }
-    // ... (El resto de getters y setters para nombre, modelo, foto, precioCompra, precioVenta, descripcion, categoriaId)
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }

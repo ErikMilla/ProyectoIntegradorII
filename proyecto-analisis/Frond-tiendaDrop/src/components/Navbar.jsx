@@ -51,7 +51,7 @@ function Navbar() {
                   title="Cerrar Sesión"
                 >
                   (Salir)
-                  _ </button>
+                  </button>
               </div>
             ) : (
               <Link to="/login" className="icon-btn" aria-label="Cuenta" title="Iniciar Sesión">
