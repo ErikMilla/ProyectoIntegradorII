@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
-import AuthService from '../services/auth.service.js';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
+import '../css/Auth.css';
+
+function AuthBrand() {
+  return (
+    <div className="auth-brand" aria-label="Drop Store">
+      <span className="nav-logo"><span className="brand-mark" aria-hidden="true">▶</span><span>DROP</span></span>
+    </div>
+  );
+}
 
 function Login() {
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [mensaje, setMensaje] = useState('');
-
-  // 3. Traemos la función 'login' del contexto
   const { login } = useAuth();
 
-  const handleLogin = async (e) => { // 4. Hacemos la función async
-    e.preventDefault();
+  const handleLogin = async (event) => {
+    event.preventDefault();
     setMensaje('');
 
     if (!correo || !contraseña) {
@@ -20,58 +26,38 @@ function Login() {
       return;
     }
 
-    // 5. LLAMAMOS A LA FUNCIÓN DEL CONTEXTO
-    const credentials = { correo, contraseña };
-    const result = await login(credentials);
-
-    // 6. Si el login falló, el contexto nos devuelve el error
-    if (!result.success) {
-      setMensaje(result.error);
-    }
-    // (Si el login tuvo éxito, el AuthContext ya se encargó de redirigir)
+    const result = await login({ correo, contraseña });
+    if (!result.success) setMensaje(result.error);
   };
+
   return (
-    <div style={{ padding: '50px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          required
-          style={{
-            display: 'block',
-            margin: '10px 0',
-            padding: '8px',
-            width: '100%',
-          }}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={contraseña}
-          onChange={(e) => setContraseña(e.target.value)}
-          required
-          style={{
-            display: 'block',
-            margin: '10px 0',
-            padding: '8px',
-            width: '100%',
-          }}
-        />
-        <button
-          type="submit"
-          style={{ padding: '10px 20px', marginTop: '10px' }}
-        >
-          Iniciar Sesión
-        </button>
-      </form>
-      {mensaje && <p style={{ color: 'red' }}>{mensaje}</p>}
-      <p>
-        ¿No tienes cuenta? <a href="/registro">Regístrate</a>
-      </p>
-    </div>
+    <section className="auth-page" aria-labelledby="login-title">
+      <div className="auth-card">
+        <div className="auth-form-panel">
+          <h1 id="login-title">Iniciar sesión</h1>
+          <form className="auth-form" onSubmit={handleLogin}>
+            <div className="auth-field">
+              <label htmlFor="login-email">Correo</label>
+              <input id="login-email" type="email" value={correo} onChange={(event) => setCorreo(event.target.value)} autoComplete="email" required />
+            </div>
+            <div className="auth-field">
+              <label htmlFor="login-password">Clave</label>
+              <input id="login-password" type="password" value={contraseña} onChange={(event) => setContraseña(event.target.value)} autoComplete="current-password" required />
+            </div>
+            <button className="auth-submit" type="submit">Iniciar</button>
+          </form>
+          {mensaje && <p className="auth-feedback" role="alert">{mensaje}</p>}
+          <p className="auth-switch">¿No tienes cuenta? <Link to="/registro">Regístrate</Link></p>
+        </div>
+
+        <aside className="auth-welcome-panel">
+          <AuthBrand />
+          <h2>¡Hola y<br />bienvenido!</h2>
+          <p>Regístrate con tu información personal para disfrutar de todas las características de nuestro sitio.</p>
+          <Link to="/registro" className="auth-outline-link">Únete</Link>
+        </aside>
+      </div>
+    </section>
   );
 }
 
