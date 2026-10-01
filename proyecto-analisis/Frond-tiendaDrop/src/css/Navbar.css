@@ -1,134 +1,142 @@
-/* ============================================
-   HEADER / NAVBAR (Estilo INBOX)
-============================================ */
 .main-header {
-    width: 100%;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background-color: white; /* Fondo blanco */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.top-nav {
-    border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #e7e7e7;
 }
 
 .nav-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  width: min(100%, 1240px);
+  min-height: 64px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  gap: 2rem;
 }
 
-/* Logo */
 .nav-logo {
-    font-family: Impact, sans-serif;
-    font-size: 24px;
-    font-weight: 900;
-    color: #000;
-    text-decoration: none;
-    letter-spacing: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: .18rem;
+  color: #101010;
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -.12em;
+  text-decoration: none;
 }
 
-/* Menú de Categorías (Similar a la fila de NEW IN, SNEAKERS...) */
+.brand-mark {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border-radius: .15rem .65rem .65rem .15rem;
+  background: #ed1c24;
+  color: #fff;
+  font-size: .7rem;
+  letter-spacing: 0;
+}
+
 .category-menu {
-    display: flex;
-    gap: 25px;
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
+  display: flex;
+  justify-content: flex-start;
+  gap: 1.5rem;
 }
 
 .category-menu a {
-    color: #333;
-    text-decoration: none;
-    padding: 5px 0;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
+  color: #161616;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  text-decoration: none;
 }
 
-.category-menu a:hover {
-    color: #f00; /* Color rojo de acento */
-    border-bottom: 2px solid #f00;
-}
+.category-menu a:hover { color: #ed1c24; }
 
-/* Iconos y Búsqueda */
-.nav-icons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
 }
 
 .search-box {
-    display: flex;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    overflow: hidden;
+  display: flex;
+  align-items: center;
+  width: min(18vw, 210px);
+  min-width: 148px;
+  border: 1px solid #bcbcbc;
+  border-radius: 2px;
 }
 
 .search-box input {
-    padding: 8px 10px;
-    border: none;
-    font-size: 14px;
-    outline: none;
-    width: 200px;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  padding: .48rem .6rem;
+  color: #202020;
+  font-size: .68rem;
+  outline: none;
 }
 
-.search-icon {
-    background: #f0f0f0;
-    border: none;
-    padding: 8px 10px;
-    cursor: pointer;
+.search-box button,
+.nav-icon-button {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #111;
+  font-size: 1.2rem;
+  text-decoration: none;
 }
 
-.icon-btn {
-    text-decoration: none;
-    color: #333;
-    font-size: 18px;
-    padding: 5px;
+.search-box button { width: 2rem; font-size: .9rem; }
+.nav-icon-button:hover { color: #ed1c24; }
+
+.welcome-user {
+  max-width: 100px;
+  overflow: hidden;
+  color: #303030;
+  font-size: .72rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.cart-icon span {
-    font-size: 12px;
-    margin-left: 5px;
+.logout-btn {
+  border: 0;
+  background: transparent;
+  color: #555;
+  font-size: .7rem;
+  text-decoration: underline;
 }
 
-/* Promo Bar (Barra de promociones) */
 .promo-bar {
-    background-color: #f0f0f0; /* Fondo gris claro */
-    padding: 5px 20px;
-    text-align: center;
-    font-size: 12px;
+  display: flex;
+  min-height: 29px;
+  align-items: center;
+  justify-content: center;
+  padding: .35rem 1rem;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-align: center;
 }
 
-.promo-bar a {
-    color: #f00;
-    text-decoration: none;
-    font-weight: bold;
-}
+.promo-bar span { color: #ed1c24; }
 
-/* Responsive Navbar */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .category-menu {
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .nav-icons {
-        justify-content: center;
-        width: 100%;
-    }
-    .search-box {
-        flex-grow: 1;
-    }
-    .search-box input {
-        width: 100%;
-    }
+@media (max-width: 760px) {
+  .nav-container { grid-template-columns: auto 1fr auto; gap: .75rem; padding: 0 .9rem; }
+  .category-menu { display: none; }
+  .nav-actions { justify-content: flex-end; }
+  .search-box { width: 100%; min-width: 0; }
+  .welcome-user { display: none; }
 }
