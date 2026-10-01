@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import InventoryService from '../../services/inventory.service';
 import { agruparPorProducto } from '../../utils/productGrouping'; // Importamos la utilidad
 
@@ -9,7 +8,6 @@ function ProductList({ onEdit, onNew }) { // Recibimos funciones para editar/nue
     const [productosMaestros, setProductosMaestros] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
-      const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
         setCargando(true);
@@ -39,7 +37,7 @@ function ProductList({ onEdit, onNew }) { // Recibimos funciones para editar/nue
         if (window.confirm(`¿Estás seguro de eliminar el producto maestro: ${nombre}? Esto eliminará TODAS sus variantes (tallas/stock).`)) {
             try {
                 // Lógica de eliminación (debes implementar el servicio)
-                // await InventoryService.deleteProduct(productoId);
+                await InventoryService.deleteProduct(productoId);
                 alert(`Producto ${nombre} eliminado exitosamente. (Requiere implementación de DELETE en backend)`);
                 fetchData(); // Recargar la lista
             } catch (error) {

@@ -217,4 +217,17 @@ public class ProductoController {
                                  .body("Error interno al actualizar: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarProducto(@PathVariable Long id) {
+        Optional<producto> productoOpt = productoRepository.findById(id);
+        if (productoOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Producto no encontrado con ID: " + id);
+        }
+
+        detalleProductoRepository.deleteAll(detalleProductoRepository.findByProductoId(id));
+        productoRepository.delete(productoOpt.get());
+        return ResponseEntity.noContent().build();
+    }
 }

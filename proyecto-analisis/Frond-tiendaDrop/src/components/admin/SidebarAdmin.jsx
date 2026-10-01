@@ -1,5 +1,6 @@
 import AuthService from '../../services/auth.service';
 import { useNavigate } from 'react-router-dom';
+import dropLogo from '../../images/Logo-Drop.jpg.jpeg';
 
 const menu = [
   ['dashboard', '▦', 'Dashboard'],
@@ -16,7 +17,7 @@ function SidebarAdmin({ seccionActiva, setSeccionActiva }) {
   const logout = () => { AuthService.logout(); navigate('/login'); };
 
   return <aside className="backoffice-sidebar">
-    <div className="backoffice-logo"><span>▶</span>DROP</div>
+    <img className="backoffice-logo" src={dropLogo} alt="DROP Store" />
     <nav aria-label="Administración">
       {menu.map(([id, icon, label]) => <button key={id} className={seccionActiva === id ? 'active' : ''} onClick={() => setSeccionActiva(id)}><i>{icon}</i>{label}</button>)}
     </nav>
