@@ -42,6 +42,9 @@ public class VentaServiceImpl implements IVentaService {
     @Override
     @Transactional // ¡MUY IMPORTANTE! Si algo falla, revierte todo.
     public Venta registrarVenta(VentaRequestDto ventaDto) {
+        if (ventaDto.getItems() == null || ventaDto.getItems().isEmpty()) {
+            throw new IllegalArgumentException("La venta debe incluir al menos un producto.");
+        }
         
         // 1. Buscar al Usuario
         Usuario usuario = usuarioRepository.findById(ventaDto.getUsuarioId())
@@ -55,10 +58,10 @@ public class VentaServiceImpl implements IVentaService {
         nuevaVenta.setTipo_venta("Online"); // Tipo de venta fijo
         
         // Guardamos los nuevos campos que añadimos a la entidad Venta
-        nuevaVenta.setSubtotal(ventaDto.getSubtotal());
-        nuevaVenta.setCostoEnvio(ventaDto.getCostoEnvio());
-        nuevaVenta.setIgv(ventaDto.getIgv());
-        nuevaVenta.setTotal(ventaDto.getTotal());
+        nuevaVenta.setSubtotal(0.0);
+        nuevaVenta.setCostoEnvio(Math.max(0, ventaDto.getCostoEnvio()));
+        nuevaVenta.setIgv(0.0);
+        nuevaVenta.setTotal(0.0);
         
         // (Opcional: podrías guardar los datos del DTO cliente 
         //  si añades campos a tu Entidad Venta, ej: direccion_envio, nombre_cliente)
@@ -66,7 +69,11 @@ public class VentaServiceImpl implements IVentaService {
         Venta ventaGuardada = ventaRepository.save(nuevaVenta);
         
         // 3. Recorrer los items del carrito y guardarlos (y descontar stock)
+        double subtotalCalculado = 0.0;
         for (DetalleVentaRequestDto itemDto : ventaDto.getItems()) {
+            if (itemDto.getCantidad() <= 0) {
+                throw new IllegalArgumentException("La cantidad de cada producto debe ser mayor a cero.");
+            }
             
             // 3a. Buscar el DetalleProducto (la variante)
             // USAMOS TU ENTIDAD: detalle_producto (minúscula)
@@ -93,12 +100,20 @@ public class VentaServiceImpl implements IVentaService {
             detalleVenta.setDetalle_producto(detalleProd); // ¡La relación corregida!
             
             detalleVenta.setCantidad(itemDto.getCantidad());
-            detalleVenta.setCosto(itemDto.getPrecioUnitario()); // Guardamos el precio
+            double precioUnitario = detalleProd.getProducto().getPrcio_venta();
+            detalleVenta.setCosto(precioUnitario);
+            subtotalCalculado += precioUnitario * itemDto.getCantidad();
             // El campo 'envio' en detalle_venta no lo usamos, 
             // ya que el costo de envío está en la Venta general.
             
             detalleVentaRepository.save(detalleVenta);
         }
+
+        double igvCalculado = subtotalCalculado * 0.18;
+        ventaGuardada.setSubtotal(subtotalCalculado);
+        ventaGuardada.setIgv(igvCalculado);
+        ventaGuardada.setTotal(subtotalCalculado + igvCalculado + ventaGuardada.getCostoEnvio());
+        ventaRepository.save(ventaGuardada);
         
         // 4. Devolver la venta guardada
         return ventaGuardada;
