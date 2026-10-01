@@ -19,6 +19,8 @@ const VentaService = {
   getAllVentas: () => {
     return api.get('/todas'); // Llama al nuevo endpoint del backend
   },
+  getVenta: (id) => api.get(`/${id}`),
+  deleteVenta: (id) => api.delete(`/${id}`),
 };
 
 
