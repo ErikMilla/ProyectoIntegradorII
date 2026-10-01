@@ -1,6 +1,7 @@
 /* eslint-disable no-irregular-whitespace */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SidebarAdmin from '../../components/admin/SidebarAdmin';
+import UserService from '../../services/user.service';
 import '../../css/Intranet.css';
 
 const shoes = [
@@ -63,7 +64,20 @@ function Pos() {
 }
 
 function Users() {
-  return <><div className="backoffice-heading"><h1>USUARIOS</h1><div className="toolbar"><button>＋</button><button>⌕</button></div></div><article className="invoice-table"><table><thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>{customers.map((name, index) => <tr key={name}><td>{index + 1}</td><td>{name}</td><td>usuario@drop.com</td><td>{index === 0 ? 'ADMIN' : 'CLIENTE'}</td><td>Activo</td><td>⌕　♲</td></tr>)}</tbody></table></article></>;
+  const emptyUser = { nombre: '', apellido: '', correo: '', dni: '', telefono: '', direccion: '', rol: 'CLIENTE' };
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState(emptyUser);
+  const [editingId, setEditingId] = useState(null);
+  const [message, setMessage] = useState('');
+  const loadUsers = async () => { try { setUsers((await UserService.getAll()).data); } catch { setMessage('No se pudo cargar usuarios. Reinicia el backend para activar el módulo.'); } };
+  useEffect(() => { loadUsers(); }, []);
+  const save = async (event) => {
+    event.preventDefault(); setMessage('');
+    try { if (editingId) await UserService.update(editingId, form); else await UserService.create(form); setForm(emptyUser); setEditingId(null); setMessage('Usuario guardado correctamente.'); loadUsers(); } catch (error) { setMessage(error.response?.data || 'No se pudo guardar el usuario.'); }
+  };
+  const edit = (user) => { setEditingId(user.id); setForm({ ...emptyUser, ...user }); setMessage('Editando usuario seleccionado.'); };
+  const remove = async (id) => { if (!window.confirm('¿Eliminar este usuario?')) return; try { await UserService.remove(id); loadUsers(); } catch { setMessage('No se pudo eliminar el usuario.'); } };
+  return <><div className="backoffice-heading"><h1>USUARIOS</h1><div className="toolbar"><button onClick={() => { setForm(emptyUser); setEditingId(null); }}>＋</button><button>⌕</button></div></div><div className="management-grid customers-grid"><article className="dark-table-card"><table><thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>DNI</th><th>Acciones</th></tr></thead><tbody>{users.length ? users.map((user) => <tr key={user.id}><td>{user.id}</td><td>{user.nombre} {user.apellido}</td><td>{user.correo}</td><td>{user.rol}</td><td>{user.dni || '—'}</td><td><button className="table-action" onClick={() => edit(user)}>Editar</button><button className="table-action danger" onClick={() => remove(user.id)}>Eliminar</button></td></tr>) : <tr><td colSpan="6">Sin usuarios para mostrar</td></tr>}</tbody></table></article><form className="backoffice-form customer-form" onSubmit={save}><h2>{editingId ? 'Editar usuario' : 'Nuevo usuario'}</h2>{[['nombre', 'Nombres'], ['apellido', 'Apellidos'], ['correo', 'Correo'], ['dni', 'DNI/RUC'], ['telefono', 'Teléfono'], ['direccion', 'Dirección']].map(([field, label]) => <label key={field}>{label}<input type={field === 'correo' ? 'email' : 'text'} required={field === 'nombre' || field === 'correo'} value={form[field] || ''} onChange={(event) => setForm({ ...form, [field]: event.target.value })} /></label>)}<label>Rol<select value={form.rol} onChange={(event) => setForm({ ...form, rol: event.target.value })}><option>CLIENTE</option><option>ADMIN</option><option>ALMACENERO</option><option>VENDEDOR</option></select></label><button type="submit">{editingId ? 'ACTUALIZAR' : 'GUARDAR'}</button>{message && <small className="form-message">{message}</small>}</form></div></>;
 }
 
 function Settings() { return <section className="settings-card"><h1>CONFIGURACIÓN</h1><p>Administra las preferencias de la tienda DROP.</p><label>Nombre de la tienda<input defaultValue="DROP Store" /></label><label>Correo de contacto<input defaultValue="contacto@dropstore.local" /></label><button>GUARDAR CAMBIOS</button></section>; }

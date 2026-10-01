@@ -9,9 +9,13 @@ const api = axios.create({
 });
 
 const UserService = {
+  getAll: () => api.get(''),
   getClientes: () => {
     return api.get('/clientes');
-  }
+  },
+  create: (user) => api.post('', user),
+  update: (id, user) => api.put(`/${id}`, user),
+  remove: (id) => api.delete(`/${id}`),
 };
 
 export default UserService;
