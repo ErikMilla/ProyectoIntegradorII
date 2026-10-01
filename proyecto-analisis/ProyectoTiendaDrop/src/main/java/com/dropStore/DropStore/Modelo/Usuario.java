@@ -1,6 +1,7 @@
 package com.dropStore.DropStore.Modelo;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 @Entity
@@ -21,9 +22,11 @@ public class Usuario {
     private String telefono; // CAMBIAR de int a String
     private String direccion;
     private String rol; 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String contraseña;
     
     @Transient // AGREGAR esto para que NO se guarde en BD
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String confircontraseña;
     
     @Temporal(TemporalType.TIMESTAMP)

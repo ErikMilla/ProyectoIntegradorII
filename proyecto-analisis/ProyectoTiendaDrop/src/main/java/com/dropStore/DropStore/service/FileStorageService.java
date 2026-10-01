@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class FileStorageService {
@@ -23,8 +24,21 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file) {
         // Generar un nombre de archivo único para evitar colisiones
-        String originalFileName = file.getOriginalFilename();
-        String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("La imagen es obligatoria.");
+        }
+        if (file.getSize() > 5 * 1024 * 1024) {
+            throw new IllegalArgumentException("La imagen supera el límite de 5 MB.");
+        }
+        Map<String, String> extensions = Map.of(
+                "image/jpeg", ".jpg",
+                "image/png", ".png",
+                "image/webp", ".webp"
+        );
+        String extension = extensions.get(file.getContentType());
+        if (extension == null) {
+            throw new IllegalArgumentException("Formato no permitido. Usa JPG, PNG o WEBP.");
+        }
         String fileName = UUID.randomUUID().toString() + extension;
         
         try {
@@ -34,7 +48,7 @@ public class FileStorageService {
             
             // Devolver la URL pública que usará el frontend
             // NOTA: Esta URL depende de la configuración de tu ResourceHandler en Spring
-            return "http://localhost:8081/uploads/" + fileName;
+            return "/uploads/" + fileName;
             
         } catch (IOException ex) {
             throw new RuntimeException("Error al guardar el archivo " + fileName, ex);
