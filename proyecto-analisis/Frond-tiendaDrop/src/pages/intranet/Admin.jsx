@@ -44,7 +44,7 @@ function Dashboard() {
 }
 
 function Inventory() {
-  return <><div className="backoffice-heading"><h1>INVENTARIO</h1><div className="toolbar"><button>＋</button><button>⌕</button><button>▥</button></div></div><div className="management-grid"><article className="dark-table-card"><table><thead><tr><th>Producto</th><th>Marca</th><th>Talla</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acción</th></tr></thead><tbody>{shoes.map(([name, price, stock]) => <tr key={name}><td><ProductThumb /></td><td>NIKE</td><td>42</td><td>{price}</td><td>{stock}</td><td>En Stock</td><td>•••</td></tr>)}</tbody></table></article><ProductForm /></div></>;
+  return <><div className="backoffice-heading"><h1>INVENTARIO</h1><div className="toolbar"><a className="open-management" href="/intranet-almacen">CRUD completo</a><button>＋</button><button>⌕</button><button>▥</button></div></div><div className="management-grid"><article className="dark-table-card"><table><thead><tr><th>Producto</th><th>Marca</th><th>Talla</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acción</th></tr></thead><tbody>{shoes.map(([name, price, stock]) => <tr key={name}><td><ProductThumb /></td><td>NIKE</td><td>42</td><td>{price}</td><td>{stock}</td><td>En Stock</td><td>•••</td></tr>)}</tbody></table></article><ProductForm /></div></>;
 }
 
 function ProductForm() {
