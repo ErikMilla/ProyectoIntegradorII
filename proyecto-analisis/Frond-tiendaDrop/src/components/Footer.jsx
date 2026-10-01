@@ -1,71 +1,52 @@
-// src/components/Footer.jsx
-
-import React from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Footer.css';
 
 function Footer() {
   return (
-    <footer>
+    <footer id="nosotros">
       <div className="footer-top">
         <div className="footer-grid">
-          {/* COLUMNA 1: NOSOTROS */}
-          <div className="footer-col">
-            <h3>NOSOTROS</h3>
-            <ul>
-              <li><Link to="/tiendas">Tiendas</Link></li>
-              <li><Link to="/contacto">Contacto</Link></li>
-              <li><Link to="/trabaja-con-nosotros">Trabaja con nosotros</Link></li>
-              <li><Link to="/reclamos">Libro de reclamaciones</Link></li>
-            </ul>
-          </div>
+          <section className="footer-brand" aria-label="Drop Store">
+            <Link to="/" className="nav-logo">
+              <span className="brand-mark" aria-hidden="true">▶</span>
+              <span>DROP</span>
+            </Link>
+            <p>Zapatillas urbanas y deportivas para quienes viven el movimiento.</p>
+          </section>
 
-          {/* COLUMNA 2: LEGALES */}
-          <div className="footer-col">
-            <h3>LEGALES</h3>
+          <section className="footer-col">
+            <h3>Use cases</h3>
             <ul>
-              <li><Link to="/privacidad">Política de Privacidad</Link></li>
-              <li><Link to="/envios">Envíos y devoluciones</Link></li>
-              <li><Link to="/preguntas">Preguntas frecuentes</Link></li>
-              <li><Link to="/terminos">Términos y condiciones</Link></li>
+              <li><Link to="/catalogo/Hombre">Hombre</Link></li>
+              <li><Link to="/catalogo/Mujer">Mujer</Link></li>
+              <li><Link to="/catalogo">Nuevos ingresos</Link></li>
             </ul>
-          </div>
+          </section>
 
-          {/* COLUMNA 3: MI CUENTA */}
-          <div className="footer-col">
-            <h3>MI CUENTA</h3>
+          <section className="footer-col">
+            <h3>Explore</h3>
             <ul>
-              <li><Link to="/mi-cuenta">Mi cuenta</Link></li>
-              <li><Link to="/mis-compras">Mis compras</Link></li>
-              <li><Link to="/mis-direcciones">Mis direcciones</Link></li>
-              <li><Link to="/wishlist">Wish List</Link></li>
+              <li><Link to="/catalogo">Catálogo</Link></li>
+              <li><Link to="/carrito">Carrito</Link></li>
+              <li><Link to="/login">Mi cuenta</Link></li>
             </ul>
-          </div>
+          </section>
 
-          {/* COLUMNA 4: NEWSLETTER */}
-          <div className="footer-col">
-            <h3>NEWSLETTER</h3>
-            <p>Suscríbete y recibe todas nuestras novedades!</p>
-            <div className="newsletter-form">
-              <input type="email" placeholder="Ingresa tu e-mail" />
-              <button>SUSCRIBIRME</button>
-            </div>
-            <div className="social-links">
-              {/* Iconos sociales (puedes usar iconos de React o Font Awesome) */}
-              <a href="#" aria-label="Facebook">f</a>
-              <a href="#" aria-label="Instagram">ig</a>
-            </div>
-          </div>
+          <section className="footer-col">
+            <h3>Resources</h3>
+            <ul>
+              <li><a href="#nosotros">Nosotros</a></li>
+              <li><a href="#nosotros">Envíos y devoluciones</a></li>
+              <li><a href="#nosotros">Soporte</a></li>
+            </ul>
+          </section>
         </div>
       </div>
 
       <div className="footer-bottom">
-        <div className="payment-methods">
-          {/* Aquí irían los iconos de VISA, Mastercard, QR, etc. */}
-          <span>💳 VISA</span>
-          <span>⚫ Mastercard</span>
-          <span>🏧 QR</span>
-          <span>© Copyright 2025 | TiendaDrop</span>
+        <div className="footer-bottom-inner">
+          <span>© 2026 Drop Store</span>
+          <span>Perú · Zapatillas auténticas</span>
         </div>
       </div>
     </footer>

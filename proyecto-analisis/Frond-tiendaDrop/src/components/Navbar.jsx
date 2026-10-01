@@ -1,76 +1,57 @@
-import React, { useContext } from 'react'; // 1. AÑADIMOS 'useContext'
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Navbar.css';
-
 import { useAuth } from '../pages/AuthContext.jsx';
-// 2. IMPORTAMOS 'CartContext' (NO 'useCart')
 import { CartContext } from '../pages/CartContext.jsx';
+
+function Brand() {
+  return (
+    <Link to="/" className="nav-logo" aria-label="Drop Store, inicio">
+      <span className="brand-mark" aria-hidden="true">▶</span>
+      <span>DROP</span>
+    </Link>
+  );
+}
 
 function Navbar() {
   const { currentUser, logout } = useAuth();
-
-  // 3. USAMOS EL 'useContext' DE REACT DIRECTAMENTE
-  const { itemCount, cartTotal } = useContext(CartContext);
+  const { itemCount } = useContext(CartContext);
 
   return (
     <header className="main-header">
-      <div className="top-nav">
-        <div className="nav-container">
+      <div className="nav-container">
+        <Brand />
 
-          {/* Logo */}
-          <Link to="/" className="nav-logo">
-            TIENDADROP
+        <nav className="category-menu" aria-label="Navegación principal">
+          <Link to="/">INICIO</Link>
+          <Link to="/catalogo">CATÁLOGO</Link>
+          <a href="#nosotros">NOSOTROS</a>
+        </nav>
+
+        <div className="nav-actions">
+          <form className="search-box" role="search" onSubmit={(event) => event.preventDefault()}>
+            <label className="visually-hidden" htmlFor="product-search">Buscar productos</label>
+            <input id="product-search" type="search" placeholder="Buscar productos" />
+            <button type="submit" aria-label="Buscar productos">⌕</button>
+          </form>
+
+          {currentUser ? (
+            <>
+              <span className="welcome-user">Hola, {currentUser.nombre}</span>
+              <button type="button" onClick={logout} className="logout-btn">Salir</button>
+            </>
+          ) : (
+            <Link to="/login" className="nav-icon-button" aria-label="Iniciar sesión">◉</Link>
+          )}
+
+          <Link to="/carrito" className="nav-icon-button" aria-label={`Carrito con ${itemCount} productos`}>
+            🛒
           </Link>
-
-          {/* Menú de Categorías */}
-          <nav className="category-menu">
-            <Link to="/catalogo">SNEAKERS</Link>
-            <Link to="/catalogo/Hombre">HOMBRE</Link>
-            <Link to="/catalogo/Mujer">MUJER</Link>
-          </nav>
-
-          {/* Iconos */}
-          <div className="nav-icons">
-
-            {/* Buscador */}
-            <div className="search-box">
-              <input type="text" placeholder="Buscar productos..." />
-              <button className="search-icon" aria-label="Buscar">
-                🔍
-              </button>
-            </div>
-
-            {/* Lógica de Autenticación */}
-            {currentUser ? (
-              <div className="user-info">
-                <span className="welcome-user">Hola, {currentUser.nombre}</span>
-                <button
-                  onClick={logout}
-                  className="icon-btn logout-btn"
-                  aria-label="Cerrar Sesión"
-                  title="Cerrar Sesión"
-                >
-                  (Salir)
-                  </button>
-              </div>
-            ) : (
-              <Link to="/login" className="icon-btn" aria-label="Cuenta" title="Iniciar Sesión">
-                👤
-              </Link>
-            )}
-
-            {/* Lógica del Carrito (Esto ya estaba bien) */}
-            <Link to="/carrito" className="icon-btn cart-icon" aria-label="Carrito">
-              🛒
-              <span>{itemCount} / S/ {cartTotal.toFixed(2)}</span>
-            </Link>
-          </div>
         </div>
       </div>
 
-      {/* Barra de promociones */}
       <div className="promo-bar">
-        <p>3 cuotas sin intereses con BCP, Visa, BBVA, Interbank, Diners y CMR Falabella. <Link to="/terminos">Ver TyC</Link></p>
+        <span aria-hidden="true">▰</span>&nbsp; ENVÍOS GRATIS A TODO EL PERÚ &nbsp;<span aria-hidden="true">✈</span>
       </div>
     </header>
   );
