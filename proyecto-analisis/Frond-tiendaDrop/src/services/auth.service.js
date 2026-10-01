@@ -12,10 +12,16 @@ const LEGACY_PASSWORD_FIELD = 'contraseÃ±a';
 const LEGACY_PASSWORD_CONFIRMATION_FIELD = 'confircontraseÃ±a';
 
 const AuthService = {
-  login: ({ correo, contraseña }) => api.post('/api/auth/login', { correo, [LEGACY_PASSWORD_FIELD]: contraseña }),
+  login: ({ correo, contraseña }) => api.post('/api/auth/login', {
+    correo,
+    contraseña,
+    [LEGACY_PASSWORD_FIELD]: contraseña,
+  }),
 
   register: (user) => api.post('/api/auth/registro', {
     ...user,
+    contraseña: user.contraseña,
+    confircontraseña: user.confircontraseña,
     [LEGACY_PASSWORD_FIELD]: user.contraseña,
     [LEGACY_PASSWORD_CONFIRMATION_FIELD]: user.confircontraseña,
   }),
