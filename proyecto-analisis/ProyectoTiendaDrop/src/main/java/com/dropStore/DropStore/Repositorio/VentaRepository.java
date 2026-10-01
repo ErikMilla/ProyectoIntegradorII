@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 
 public interface VentaRepository  extends JpaRepository<Venta, Long> {
      List<Venta> findByUsuario_IdOrderByFechaDesc(Long usuarioId);
+     List<Venta> findAllByOrderByFechaDesc();
 }

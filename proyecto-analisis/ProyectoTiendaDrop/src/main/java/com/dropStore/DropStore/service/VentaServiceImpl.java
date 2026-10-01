@@ -107,4 +107,27 @@ public class VentaServiceImpl implements IVentaService {
     @Override
     public List<Venta> listarVentasPorUsuario(Long usuarioId) {
  return ventaRepository.findByUsuario_IdOrderByFechaDesc(usuarioId);    }
+
+    @Override
+    public List<DetalleVenta> listarDetalles(Long ventaId) {
+        if (!ventaRepository.existsById(ventaId)) {
+            throw new RuntimeException("Venta no encontrada con ID: " + ventaId);
+        }
+        return detalleVentaRepository.findByVentaId(ventaId);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarVenta(Long ventaId) {
+        Venta venta = ventaRepository.findById(ventaId)
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada con ID: " + ventaId));
+        List<DetalleVenta> detalles = detalleVentaRepository.findByVentaId(ventaId);
+        for (DetalleVenta detalle : detalles) {
+            detalle_producto variante = detalle.getDetalle_producto();
+            variante.setStock(variante.getStock() + detalle.getCantidad());
+            detalleProductoRepository.save(variante);
+        }
+        detalleVentaRepository.deleteAll(detalles);
+        ventaRepository.delete(venta);
+    }
 }

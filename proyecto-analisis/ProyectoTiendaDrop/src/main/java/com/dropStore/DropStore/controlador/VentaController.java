@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
+import com.dropStore.DropStore.Modelo.DetalleVenta;
 
 @RestController
 @RequestMapping("/api/v1/ventas")
@@ -57,7 +60,38 @@ public class VentaController {
     
     @GetMapping("/todas")
     public ResponseEntity<List<Venta>> getAllVentas() {
-        // Necesitas agregar findAll() en tu servicio o llamar al repo
-        return ResponseEntity.ok(ventaRepository.findAll()); 
+        return ResponseEntity.ok(ventaRepository.findAllByOrderByFechaDesc());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getDetalleVenta(@PathVariable Long id) {
+        return ventaRepository.findById(id).map(venta -> {
+            List<Map<String, Object>> items = ventaService.listarDetalles(id).stream().map(detalle -> {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("id", detalle.getId());
+                item.put("cantidad", detalle.getCantidad());
+                item.put("precioUnitario", detalle.getCosto());
+                item.put("varianteId", detalle.getDetalle_producto().getId());
+                item.put("producto", detalle.getDetalle_producto().getProducto().getNombre());
+                item.put("talla", detalle.getDetalle_producto().getTalla());
+                item.put("color", detalle.getDetalle_producto().getColor());
+                return item;
+            }).collect(Collectors.toList());
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("venta", venta);
+            response.put("items", items);
+            return ResponseEntity.ok(response);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarVenta(@PathVariable Long id) {
+        try {
+            ventaService.eliminarVenta(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException error) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Venta no encontrada."));
+        }
     }
 }
