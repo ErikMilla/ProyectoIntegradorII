@@ -1,202 +1,284 @@
-import React, { useState } from 'react';
-import { useCart } from './CartContext.jsx';
-import { useAuth } from './AuthContext.jsx';
-import { useNavigate } from 'react-router-dom';
-import VentaService from '../services/venta.service'; // 1. Importamos el servicio
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/cart';
+import { useAuth } from '../context/auth';
+import VentaService from '../services/venta.service';
+import { mensajeDeError, resolverUrlImagen } from '../services/api';
+import { soles, talla } from '../utils/formato';
+import Icon from '../components/Icon';
+import '../css/Checkout.css';
 
-// ... (Mantén tus estilos 'styles' aquí tal cual estaban, no los borres) ...
-const styles = {
-    container: { maxWidth: '1200px', margin: '40px auto', padding: '20px', fontFamily: 'Arial, sans-serif' },
-    title: { fontSize: '2rem', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px', marginBottom: '30px' },
-    checkoutLayout: { display: 'flex', flexDirection: 'row', gap: '30px', flexWrap: 'wrap' },
-    formColumn: { flex: 2, minWidth: '300px' },
-    summaryColumn: { flex: 1, minWidth: '300px', backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '8px', height: 'fit-content' },
-    formSection: { marginBottom: '25px' },
-    formLabel: { display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9rem' },
-    formInput: { width: '100%', padding: '12px', fontSize: '1rem', border: '1px solid #ddd', borderRadius: '5px', boxSizing: 'border-box' },
-    summaryTitle: { fontSize: '1.5rem', marginBottom: '20px' },
-    summaryRow: { display: 'flex', justifyContent: 'space-between', marginBottom: '15px', fontSize: '1rem' },
-    summaryTotal: { display: 'flex', justifyContent: 'space-between', marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #ddd', fontSize: '1.2rem', fontWeight: 'bold' },
-    payButton: { width: '100%', padding: '15px', fontSize: '1.1rem', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px' },
-    paymentMethod: { display: 'flex', gap: '15px', marginBottom: '20px' },
-    paymentOption: { flex: 1, padding: '15px', border: '2px solid #ddd', borderRadius: '5px', cursor: 'pointer', textAlign: 'center' },
-    paymentOptionSelected: { borderColor: '#3498db', backgroundColor: '#f0f8ff' },
-    yapeQr: { textAlign: 'center', padding: '20px', border: '1px dashed #ccc', borderRadius: '5px' }
+const COSTO_ENVIO = 17.00;
+const PORCENTAJE_IGV = 0.18;
+
+const METODOS = [
+  { id: 'tarjeta', icono: 'card', label: 'Tarjeta', detalle: 'Crédito o débito' },
+  { id: 'yape', icono: 'phone', label: 'Yape o Plin', detalle: 'Desde tu celular' },
+];
+
+/** "4111111111111111" -> "4111 1111 1111 1111" */
+const formatearTarjeta = (valor) => valor.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
+
+/** "1227" -> "12/27" */
+const formatearVencimiento = (valor) => {
+  const digitos = valor.replace(/\D/g, '').slice(0, 4);
+  return digitos.length > 2 ? `${digitos.slice(0, 2)}/${digitos.slice(2)}` : digitos;
 };
 
 function ProcesoPago() {
-    const { cartItems, cartTotal, clearCart } = useCart();
-    const { currentUser } = useAuth();
-    const navigate = useNavigate();
-    
-    // Estado para controlar carga y errores
-    const [procesando, setProcesando] = useState(false);
+  const { cartItems, cartTotal, clearCart } = useCart();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        nombre: currentUser ? (currentUser.nombre || '') : '',
-        email: currentUser ? (currentUser.correo || '') : '', // Ojo: tu usuario usa 'correo', no 'email'
-        direccion: currentUser ? (currentUser.direccion || '') : '',
-        telefono: currentUser ? (currentUser.telefono || '') : '',
-    });
+  const [procesando, setProcesando] = useState(false);
+  const [error, setError] = useState('');
 
-    const [metodoPago, setMetodoPago] = useState('tarjeta');
-    
-    const [cardData, setCardData] = useState({ numero: '', fecha: '', cvv: '' });
+  const [formData, setFormData] = useState({
+    nombre: currentUser ? [currentUser.nombre, currentUser.apellido].filter(Boolean).join(' ') : '',
+    email: currentUser ? (currentUser.correo || '') : '',
+    direccion: currentUser ? (currentUser.direccion || '') : '',
+    telefono: currentUser ? (currentUser.telefono || '') : '',
+  });
 
-    // Cálculos
-    const COSTO_ENVIO = 17.00;
-    const PORCENTAJE_IGV = 0.18;
-    const subtotal = cartTotal;
-    const igv = subtotal * PORCENTAJE_IGV;
-    const totalFinal = subtotal + igv + COSTO_ENVIO;
+  const [metodoPago, setMetodoPago] = useState('tarjeta');
+  const [cardData, setCardData] = useState({ numero: '', fecha: '', cvv: '' });
+  const [cupon, setCupon] = useState('');
+  const [cuponAplicado, setCuponAplicado] = useState(false);
+  const [mensajeCupon, setMensajeCupon] = useState('');
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  const subtotal = cartTotal;
+  const descuento = cuponAplicado ? subtotal * 0.10 : 0;
+  const igv = (subtotal - descuento) * PORCENTAJE_IGV;
+  const totalFinal = subtotal - descuento + igv + COSTO_ENVIO;
 
-    const handleCardChange = (e) => {
-        const { name, value } = e.target;
-        setCardData(prev => ({ ...prev, [name]: value }));
-    };
+  const aplicarCupon = () => {
+    const valido = cupon.trim().toUpperCase() === 'DROP10';
+    setCuponAplicado(valido);
+    setMensajeCupon(valido ? 'Cupón DROP10 aplicado: 10 % de descuento.' : 'Ese cupón no existe o ya venció.');
+  };
 
-    // --- 2. FUNCIÓN DE ENVÍO REAL ---
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        if (!currentUser || !currentUser.id) {
-            alert("Error: No se identifica al usuario logueado.");
-            return;
-        }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-        setProcesando(true);
+  const handleCardChange = (e) => {
+    const { name, value } = e.target;
+    const formateado = {
+      numero: formatearTarjeta,
+      fecha: formatearVencimiento,
+      cvv: (v) => v.replace(/\D/g, '').slice(0, 4),
+    }[name](value);
+    setCardData((prev) => ({ ...prev, [name]: formateado }));
+  };
 
-        // A. Construir el JSON exacto que pide tu Backend (VentaRequestDto)
-        const ventaDto = {
-            usuarioId: currentUser.id,
-            metodoPago: metodoPago,
-            subtotal: subtotal,
-            costoEnvio: COSTO_ENVIO,
-            igv: igv,
-            total: totalFinal,
-            // Datos del cliente (ClienteDto)
-            cliente: {
-                nombre: formData.nombre,
-                email: formData.email,
-                direccion: formData.direccion,
-                telefono: formData.telefono
-            },
-            // Items del carrito (List<DetalleVentaRequestDto>)
-            items: cartItems.map(item => ({
-                detalleProductoId: item.varianteId, // El ID de la variante específica (talla)
-                cantidad: item.quantity,
-                precioUnitario: item.prcio_venta
-            }))
-        };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            // B. Enviar al Backend
-            console.log("Enviando venta:", ventaDto);
-            await VentaService.crearVenta(ventaDto);
-
-            // C. Éxito
-            clearCart();
-            navigate('/orden-confirmada');
-
-        } catch (error) {
-            console.error("Error al procesar la venta:", error);
-            // Mostrar mensaje de error del backend si existe (ej: "Stock insuficiente")
-            const errorMsg = error.response?.data?.message || "Ocurrió un error al procesar el pago.";
-            alert("Error: " + errorMsg);
-        } finally {
-            setProcesando(false);
-        }
-    };
-
-    if (cartItems.length === 0) {
-        navigate('/carrito');
-        return null;
+    if (!currentUser || !currentUser.id) {
+      setError('Tu sesión expiró. Vuelve a iniciar sesión para pagar.');
+      return;
     }
 
-    return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>Proceso de Pago</h1>
-            
-            <form onSubmit={handleSubmit}>
-                <div style={styles.checkoutLayout}>
-                    {/* Columna Izquierda (Formulario) */}
-                    <div style={styles.formColumn}>
-                        {/* ... (Los inputs de Nombre, Email, Dirección, Teléfono se mantienen igual) ... */}
-                         <div style={styles.formSection}>
-                            <h2>1. Datos de Contacto y Envío</h2>
-                            <label style={styles.formLabel}>Nombre Completo</label>
-                            <input style={styles.formInput} type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} required />
-                        </div>
-                        <div style={styles.formSection}>
-                            <label style={styles.formLabel}>Email</label>
-                            <input style={styles.formInput} type="email" name="email" value={formData.email} onChange={handleInputChange} required />
-                        </div>
-                        <div style={styles.formSection}>
-                            <label style={styles.formLabel}>Dirección de Envío</label>
-                            <input style={styles.formInput} type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} required />
-                        </div>
-                        <div style={styles.formSection}>
-                            <label style={styles.formLabel}>Teléfono</label>
-                            <input style={styles.formInput} type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} required />
-                        </div>
+    setProcesando(true);
+    setError('');
 
-                        {/* ... (Sección Método de Pago se mantiene igual) ... */}
-                        <div style={styles.formSection}>
-                            <h2>2. Método de Pago</h2>
-                            <div style={styles.paymentMethod}>
-                                <div style={{ ...styles.paymentOption, ...(metodoPago === 'tarjeta' ? styles.paymentOptionSelected : {}) }} onClick={() => setMetodoPago('tarjeta')}>
-                                    💳 Tarjeta
-                                </div>
-                                <div style={{ ...styles.paymentOption, ...(metodoPago === 'yape' ? styles.paymentOptionSelected : {}) }} onClick={() => setMetodoPago('yape')}>
-                                    📱 Yape / Plin
-                                </div>
-                            </div>
-                        </div>
+    const ventaDto = {
+      usuarioId: currentUser.id,
+      metodoPago,
+      tipoVenta: 'Online',
+      codigoDescuento: cuponAplicado ? 'DROP10' : null,
+      subtotal,
+      costoEnvio: COSTO_ENVIO,
+      igv,
+      total: totalFinal,
+      cliente: {
+        nombre: formData.nombre,
+        email: formData.email,
+        direccion: formData.direccion,
+        telefono: formData.telefono,
+      },
+      items: cartItems.map((item) => ({
+        detalleProductoId: item.varianteId,
+        cantidad: item.quantity,
+        precioUnitario: item.prcio_venta,
+      })),
+    };
 
-                         {/* Inputs Condicionales de Pago (Solo visuales por ahora) */}
-                         {metodoPago === 'tarjeta' && (
-                            <div style={styles.formSection}>
-                                <label style={styles.formLabel}>Número de Tarjeta</label>
-                                <input style={styles.formInput} type="text" name="numero" value={cardData.numero} onChange={handleCardChange} maxLength="19" placeholder="0000 0000 0000 0000" required />
-                                <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
-                                    <input style={styles.formInput} type="text" name="fecha" placeholder="MM/AA" required />
-                                    <input style={styles.formInput} type="text" name="cvv" placeholder="CVV" required />
-                                </div>
-                            </div>
-                        )}
-                    </div>
+    try {
+      const respuesta = await VentaService.crearVenta(ventaDto);
+      clearCart();
+      navigate('/orden-confirmada', { state: { ventaId: respuesta.data?.id, total: totalFinal } });
+    } catch (errorPeticion) {
+      // El backend avisa aqui, por ejemplo, si otro cliente se llevo la
+      // ultima unidad mientras este llenaba el formulario.
+      setError(mensajeDeError(errorPeticion, 'No pudimos procesar el pago. Revisa los datos e inténtalo otra vez.'));
+    } finally {
+      setProcesando(false);
+    }
+  };
 
-                    {/* Columna Derecha (Resumen) */}
-                    <div style={styles.summaryColumn}>
-                        <h2 style={styles.summaryTitle}>Resumen del Pedido</h2>
-                        {cartItems.map(item => (
-                            <div key={item.varianteId} style={styles.summaryRow}>
-                                <span style={{maxWidth:'180px', overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}}>
-                                    {item.nombre} <small>({item.talla})</small> x{item.quantity}
-                                </span>
-                                <span>S/ {(item.prcio_venta * item.quantity).toFixed(2)}</span>
-                            </div>
-                        ))}
-                        <hr style={{border:'0', borderTop:'1px solid #eee', margin:'15px 0'}}/>
-                        <div style={styles.summaryRow}><span>Subtotal:</span><span>S/ {subtotal.toFixed(2)}</span></div>
-                        <div style={styles.summaryRow}><span>Envío:</span><span>S/ {COSTO_ENVIO.toFixed(2)}</span></div>
-                        <div style={styles.summaryRow}><span>IGV (18%):</span><span>S/ {igv.toFixed(2)}</span></div>
-                        <div style={styles.summaryTotal}><span>Total:</span><span>S/ {totalFinal.toFixed(2)}</span></div>
+  // Si el carrito quedo vacio, se vuelve al carrito. Va en un efecto porque
+  // navegar durante el render provoca una advertencia de React.
+  useEffect(() => {
+    if (cartItems.length === 0) navigate('/carrito', { replace: true });
+  }, [cartItems.length, navigate]);
 
-                        {/* Botón de Pagar */}
-                        <button type="submit" style={{...styles.payButton, backgroundColor: procesando ? '#95a5a6' : '#2ecc71'}} disabled={procesando}>
-                            {procesando ? 'Procesando...' : 'Confirmar Pedido y Pagar'}
-                        </button>
-                    </div>
+  if (cartItems.length === 0) return null;
+
+  return (
+    <div className="container checkout">
+      <header className="checkout-head">
+        <h1 className="page-title">Finalizar compra</h1>
+        <Link to="/carrito" className="link">Volver al carrito</Link>
+      </header>
+
+      <form onSubmit={handleSubmit} className="checkout-layout">
+        <div className="checkout-steps">
+          <section className="checkout-step" aria-labelledby="paso-envio">
+            <h2 id="paso-envio"><span>1</span> Datos de envío</h2>
+            <div className="checkout-fields">
+              <div className="field checkout-field--wide">
+                <label htmlFor="nombre">Nombre completo</label>
+                <input id="nombre" className="input" name="nombre" value={formData.nombre} onChange={handleInputChange} autoComplete="name" required />
+              </div>
+              <div className="field">
+                <label htmlFor="email">Correo electrónico</label>
+                <input id="email" className="input" type="email" name="email" value={formData.email} onChange={handleInputChange} autoComplete="email" required />
+              </div>
+              <div className="field">
+                <label htmlFor="telefono">Celular</label>
+                <input id="telefono" className="input" type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} autoComplete="tel" inputMode="tel" required />
+              </div>
+              <div className="field checkout-field--wide">
+                <label htmlFor="direccion">Dirección de entrega</label>
+                <input id="direccion" className="input" name="direccion" value={formData.direccion} onChange={handleInputChange} autoComplete="street-address" placeholder="Calle, número, distrito y ciudad" required />
+              </div>
+            </div>
+          </section>
+
+          <section className="checkout-step" aria-labelledby="paso-pago">
+            <h2 id="paso-pago"><span>2</span> Pago</h2>
+            <p className="notice">Esta tienda es de demostración: no se realiza ningún cobro real.</p>
+
+            <fieldset className="pay-options">
+              <legend className="visually-hidden">Método de pago</legend>
+              {METODOS.map((metodo) => (
+                <label key={metodo.id} className="pay-option">
+                  <input
+                    type="radio"
+                    name="metodoPago"
+                    value={metodo.id}
+                    checked={metodoPago === metodo.id}
+                    onChange={() => setMetodoPago(metodo.id)}
+                  />
+                  <Icon name={metodo.icono} size={24} />
+                  <span><strong>{metodo.label}</strong>{metodo.detalle}</span>
+                </label>
+              ))}
+            </fieldset>
+
+            {metodoPago === 'tarjeta' ? (
+              <div className="checkout-fields">
+                <div className="field checkout-field--wide">
+                  <label htmlFor="numero">Número de tarjeta</label>
+                  <input
+                    id="numero"
+                    className="input"
+                    name="numero"
+                    value={cardData.numero}
+                    onChange={handleCardChange}
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                    placeholder="0000 0000 0000 0000"
+                    pattern="(\d{4} ){3}\d{4}"
+                    title="Ingresa los 16 dígitos de la tarjeta"
+                    required
+                  />
                 </div>
-            </form>
+                <div className="field">
+                  <label htmlFor="fecha">Vencimiento</label>
+                  <input
+                    id="fecha"
+                    className="input"
+                    name="fecha"
+                    value={cardData.fecha}
+                    onChange={handleCardChange}
+                    inputMode="numeric"
+                    autoComplete="cc-exp"
+                    placeholder="MM/AA"
+                    pattern="(0[1-9]|1[0-2])/\d{2}"
+                    title="Mes y año, por ejemplo 08/28"
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="cvv">Código de seguridad</label>
+                  <input
+                    id="cvv"
+                    className="input"
+                    name="cvv"
+                    value={cardData.cvv}
+                    onChange={handleCardChange}
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                    placeholder="3 o 4 dígitos"
+                    pattern="\d{3,4}"
+                    title="Los 3 o 4 dígitos al reverso de la tarjeta"
+                    required
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className="checkout-yape">Al confirmar, tu pedido queda registrado como pagado con Yape o Plin.</p>
+            )}
+          </section>
         </div>
-    );
+
+        <aside className="checkout-summary" aria-labelledby="resumen-title">
+          <h2 id="resumen-title">Tu pedido</h2>
+          <ul className="summary-lines">
+            {cartItems.map((item) => (
+              <li key={item.varianteId}>
+                <span className="summary-thumb">
+                  <img src={resolverUrlImagen(item.foto)} alt="" />
+                  <span className="summary-qty">{item.quantity}</span>
+                </span>
+                <span className="summary-name">
+                  {item.nombre}
+                  <small>Talla {talla(item.talla)}</small>
+                </span>
+                <span>{soles(item.prcio_venta * item.quantity)}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="checkout-coupon">
+            <label htmlFor="cupon">Cupón de descuento</label>
+            <div>
+              <input id="cupon" className="input" value={cupon} onChange={(e) => setCupon(e.target.value)} placeholder="Ej. DROP10" />
+              <button type="button" className="btn btn--outline btn--sm" onClick={aplicarCupon} disabled={!cupon.trim()}>Aplicar</button>
+            </div>
+            {mensajeCupon && <small className={cuponAplicado ? 'is-ok' : 'is-error'} role="status">{mensajeCupon}</small>}
+          </div>
+
+          <dl className="checkout-totals">
+            <div><dt>Subtotal</dt><dd>{soles(subtotal)}</dd></div>
+            {descuento > 0 && <div className="is-discount"><dt>Descuento</dt><dd>−{soles(descuento)}</dd></div>}
+            <div><dt>Envío</dt><dd>{soles(COSTO_ENVIO)}</dd></div>
+            <div><dt>IGV (18 %)</dt><dd>{soles(igv)}</dd></div>
+            <div className="checkout-grand"><dt>Total</dt><dd>{soles(totalFinal)}</dd></div>
+          </dl>
+
+          {error && <p className="notice notice--error" role="alert">{error}</p>}
+
+          <button type="submit" className="btn btn--red btn--block checkout-cta" disabled={procesando}>
+            {procesando ? 'Procesando pago…' : `Pagar ${soles(totalFinal)}`}
+          </button>
+        </aside>
+      </form>
+    </div>
+  );
 }
 
 export default ProcesoPago;

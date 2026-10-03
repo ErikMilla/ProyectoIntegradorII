@@ -1,0 +1,101 @@
+modelo,nombre,marca,categoria,genero,archivo_sugerido
+Z2-001,"Nike Air Force 1 Mid '07",Nike,Urbano,Mujer,Z2-001.jpg
+Z2-002,"Nike Air Force 1 Shadow",Nike,Urbano,Niños,Z2-002.jpg
+Z2-003,"Nike Blazer Low '77",Nike,Urbano,Hombre,Z2-003.jpg
+Z2-004,"Nike Court Vision Low",Nike,Urbano,Mujer,Z2-004.jpg
+Z2-005,"Nike Air Force 1 Crater",Nike,Urbano,Niños,Z2-005.jpg
+Z2-006,"Nike Metcon 9",Nike,Entrenar,Hombre,Z2-006.jpg
+Z2-007,"Nike Free Metcon 5",Nike,Entrenar,Mujer,Z2-007.jpg
+Z2-008,"Nike SuperRep Go 3",Nike,Entrenar,Niños,Z2-008.jpg
+Z2-009,"Nike Zoom Train Command",Nike,Entrenar,Hombre,Z2-009.jpg
+Z2-010,"Nike City Rep TR",Nike,Entrenar,Mujer,Z2-010.jpg
+Z2-011,"Nike Air Zoom Pegasus 40",Nike,Correr,Niños,Z2-011.jpg
+Z2-012,"Nike Revolution 6",Nike,Correr,Hombre,Z2-012.jpg
+Z2-013,"Nike Downshifter 12",Nike,Correr,Mujer,Z2-013.jpg
+Z2-014,"Nike Air Zoom Structure 25",Nike,Correr,Niños,Z2-014.jpg
+Z2-015,"Nike Infinity Run 4",Nike,Correr,Hombre,Z2-015.jpg
+Z2-016,"Nike Court Vision Low Next Nature",Nike,Tenis,Mujer,Z2-016.jpg
+Z2-017,"Nike Zoom Vapor Cage 4",Nike,Tenis,Niños,Z2-017.jpg
+Z2-018,"Nike Court Legacy",Nike,Tenis,Hombre,Z2-018.jpg
+Z2-019,"Nike Air Zoom GP Turbo",Nike,Tenis,Mujer,Z2-019.jpg
+Z2-020,"Nike Court Royale 2",Nike,Tenis,Niños,Z2-020.jpg
+Z2-021,"Nike Zoom Freak 5",Nike,Básquet,Hombre,Z2-021.jpg
+Z2-022,"Nike LeBron Witness 8",Nike,Básquet,Mujer,Z2-022.jpg
+Z2-023,"Nike Kyrie Flytrap 5",Nike,Básquet,Niños,Z2-023.jpg
+Z2-024,"Nike Precision 6",Nike,Básquet,Hombre,Z2-024.jpg
+Z2-025,"Nike Air Max Impact 4",Nike,Básquet,Mujer,Z2-025.jpg
+Z2-026,"Nike Mercurial Vapor 15",Nike,Fútbol,Niños,Z2-026.jpg
+Z2-027,"Nike Phantom GT2",Nike,Fútbol,Hombre,Z2-027.jpg
+Z2-028,"Nike Tiempo Legend 10",Nike,Fútbol,Mujer,Z2-028.jpg
+Z2-029,"Nike React Gato",Nike,Fútbol,Niños,Z2-029.jpg
+Z2-030,"Nike Premier 3",Nike,Fútbol,Hombre,Z2-030.jpg
+Z2-031,"Nike SB Dunk Low Pro",Nike,Skateboarding,Mujer,Z2-031.jpg
+Z2-032,"Nike SB Check Canvas",Nike,Skateboarding,Niños,Z2-032.jpg
+Z2-033,"Nike SB Chron 2",Nike,Skateboarding,Hombre,Z2-033.jpg
+Z2-034,"Nike SB Zoom Blazer Mid",Nike,Skateboarding,Mujer,Z2-034.jpg
+Z2-035,"Nike SB Force 58",Nike,Skateboarding,Niños,Z2-035.jpg
+Z2-036,"Nike Air Max 90",Nike,Retro running,Hombre,Z2-036.jpg
+Z2-037,"Nike Air Max 97",Nike,Retro running,Mujer,Z2-037.jpg
+Z2-038,"Nike Air Max SC",Nike,Retro running,Niños,Z2-038.jpg
+Z2-039,"Nike Air Max Excee",Nike,Retro running,Hombre,Z2-039.jpg
+Z2-040,"Nike Air Max Furyosa",Nike,Retro running,Mujer,Z2-040.jpg
+Z2-041,"Adidas Forum Low",Adidas,Urbano,Niños,Z2-041.jpg
+Z2-042,"Adidas Campus 00s",Adidas,Urbano,Hombre,Z2-042.jpg
+Z2-043,"Adidas Nizza Platform",Adidas,Urbano,Mujer,Z2-043.jpg
+Z2-044,"Adidas Continental 80",Adidas,Urbano,Niños,Z2-044.jpg
+Z2-045,"Adidas Dropset Trainer",Adidas,Entrenar,Hombre,Z2-045.jpg
+Z2-046,"Adidas Ultraboost Trainer",Adidas,Entrenar,Mujer,Z2-046.jpg
+Z2-047,"Adidas Amplimove Trainer",Adidas,Entrenar,Niños,Z2-047.jpg
+Z2-048,"Adidas Rapidmove Trainer",Adidas,Entrenar,Hombre,Z2-048.jpg
+Z2-049,"Adidas Ultraboost Light",Adidas,Correr,Mujer,Z2-049.jpg
+Z2-050,"Adidas Adizero SL",Adidas,Correr,Niños,Z2-050.jpg
+Z2-051,"Adidas Duramo SL",Adidas,Correr,Hombre,Z2-051.jpg
+Z2-052,"Adidas Galaxy 6",Adidas,Correr,Mujer,Z2-052.jpg
+Z2-053,"Adidas Barricade",Adidas,Tenis,Niños,Z2-053.jpg
+Z2-054,"Adidas Gamecourt 2",Adidas,Tenis,Hombre,Z2-054.jpg
+Z2-055,"Adidas CourtJam Control 3",Adidas,Tenis,Mujer,Z2-055.jpg
+Z2-056,"Adidas Avacourt",Adidas,Tenis,Niños,Z2-056.jpg
+Z2-057,"Adidas Dame 8",Adidas,Básquet,Hombre,Z2-057.jpg
+Z2-058,"Adidas Harden Stepback 3",Adidas,Básquet,Mujer,Z2-058.jpg
+Z2-059,"Adidas Pro Model 2G",Adidas,Básquet,Niños,Z2-059.jpg
+Z2-060,"Adidas Exhibit B",Adidas,Básquet,Hombre,Z2-060.jpg
+Z2-061,"Adidas Predator Accuracy",Adidas,Fútbol,Mujer,Z2-061.jpg
+Z2-062,"Adidas Copa Pure II",Adidas,Fútbol,Niños,Z2-062.jpg
+Z2-063,"Adidas X Crazyfast.1",Adidas,Fútbol,Hombre,Z2-063.jpg
+Z2-064,"Adidas F50",Adidas,Fútbol,Mujer,Z2-064.jpg
+Z2-065,"Adidas Adimatic",Adidas,Skateboarding,Niños,Z2-065.jpg
+Z2-066,"Adidas Busenitz",Adidas,Skateboarding,Hombre,Z2-066.jpg
+Z2-067,"Adidas 3MC",Adidas,Skateboarding,Mujer,Z2-067.jpg
+Z2-068,"Adidas Matchbreak Super",Adidas,Skateboarding,Niños,Z2-068.jpg
+Z2-069,"Adidas Samba OG",Adidas,Retro running,Hombre,Z2-069.jpg
+Z2-070,"Adidas Gazelle",Adidas,Retro running,Mujer,Z2-070.jpg
+Z2-071,"Adidas SL 72",Adidas,Retro running,Niños,Z2-071.jpg
+Z2-072,"Adidas Stan Smith",Adidas,Retro running,Hombre,Z2-072.jpg
+Z2-073,"Air Jordan 1 Low",Jordan,Jordan,Mujer,Z2-073.jpg
+Z2-074,"Air Jordan 1 Mid",Jordan,Jordan,Niños,Z2-074.jpg
+Z2-075,"Air Jordan 1 High OG",Jordan,Jordan,Hombre,Z2-075.jpg
+Z2-076,"Air Jordan 3 Retro",Jordan,Jordan,Mujer,Z2-076.jpg
+Z2-077,"Air Jordan 4 Retro",Jordan,Jordan,Niños,Z2-077.jpg
+Z2-078,"Air Jordan 5 Retro",Jordan,Jordan,Hombre,Z2-078.jpg
+Z2-079,"Air Jordan 6 Retro",Jordan,Jordan,Mujer,Z2-079.jpg
+Z2-080,"Air Jordan 11 Retro",Jordan,Jordan,Niños,Z2-080.jpg
+Z2-081,"Air Jordan 12 Retro",Jordan,Jordan,Hombre,Z2-081.jpg
+Z2-082,"Air Jordan 13 Retro",Jordan,Jordan,Mujer,Z2-082.jpg
+Z2-083,"Jordan Series ES",Jordan,Jordan,Niños,Z2-083.jpg
+Z2-084,"Jordan Delta 3",Jordan,Jordan,Hombre,Z2-084.jpg
+Z2-085,"Jordan Spizike Low",Jordan,Jordan,Mujer,Z2-085.jpg
+Z2-086,"Jordan Max Aura 5",Jordan,Jordan,Niños,Z2-086.jpg
+Z2-087,"Jordan Stay Loyal 3",Jordan,Jordan,Hombre,Z2-087.jpg
+Z2-088,"Air Jordan 1 Zoom CMFT",Jordan,Jordan,Mujer,Z2-088.jpg
+Z2-089,"Jordan Courtside 23",Jordan,Jordan,Niños,Z2-089.jpg
+Z2-090,"Air Jordan 1 Elevate Low",Jordan,Jordan,Hombre,Z2-090.jpg
+Z2-091,"Jordan Flight Legacy",Jordan,Jordan,Mujer,Z2-091.jpg
+Z2-092,"Air Jordan 2 Retro",Jordan,Jordan,Niños,Z2-092.jpg
+Z2-093,"Air Jordan 36",Jordan,Básquet,Hombre,Z2-093.jpg
+Z2-094,"Air Jordan XXXVII",Jordan,Básquet,Mujer,Z2-094.jpg
+Z2-095,"Jordan Zion 3",Jordan,Básquet,Niños,Z2-095.jpg
+Z2-096,"Jordan Luka 2",Jordan,Básquet,Hombre,Z2-096.jpg
+Z2-097,"Jordan Tatum 2",Jordan,Básquet,Mujer,Z2-097.jpg
+Z2-098,"Jordan One Take 5",Jordan,Básquet,Niños,Z2-098.jpg
+Z2-099,"Jordan Why Not .6",Jordan,Básquet,Hombre,Z2-099.jpg
+Z2-100,"Jordan Max Aura 4",Jordan,Básquet,Mujer,Z2-100.jpg

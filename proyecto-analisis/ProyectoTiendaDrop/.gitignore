@@ -34,3 +34,10 @@ build/
 
 ### Local runtime logs ###
 .backend.*.log
+backend-mfa.*.log
+
+# Base local permanente (datos privados de desarrollo)
+/data/
+
+# Marcadores generados automáticamente por DataSeeder
+/uploads/z2-*.svg

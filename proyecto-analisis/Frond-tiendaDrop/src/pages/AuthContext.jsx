@@ -1,90 +1,85 @@
-// src/pages/AuthContext.jsx
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import AuthService from '../services/auth.service.js';
+import { mensajeDeError } from '../services/api.js';
+import { destinoTrasLogin } from '../utils/navegacion';
+import { AuthContext } from '../context/auth';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthService from '../services/auth.service.js'; // 1. Importa tu servicio
-
-// Crear el contexto
-const AuthContext = createContext();
-
-// Hook para usarlo fácilmente
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
-
-// El Proveedor
+/**
+ * Guarda quien inicio sesion y lo comparte con toda la aplicacion.
+ * La sesion se conserva en localStorage para que al recargar la pagina el
+ * usuario siga dentro.
+ */
 export const AuthProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState(null);
-    const [loading, setLoading] = useState(true); // Para saber si estamos verificando al usuario
-    const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    // 2. Efecto para cargar al usuario desde localStorage al iniciar la app
-    useEffect(() => {
-        try {
-            const userJson = localStorage.getItem('user');
-            if (userJson) {
-                setCurrentUser(JSON.parse(userJson));
-            }
-        } catch (error) {
-            console.error("Error al cargar usuario de localStorage", error);
-        }
-        setLoading(false); // Terminamos de verificar
-    }, []);
+  // Al abrir la aplicacion, preguntamos al servidor si la sesion sigue activa.
+  useEffect(() => {
+    AuthService.getCurrentUser()
+      .then((usuario) => setCurrentUser(usuario))
+      .catch(() => setCurrentUser(null))
+      .finally(() => setLoading(false));
+  }, []);
 
-    // 3. Función de Login (¡movemos la lógica de tu componente aquí!)
-    const login = async (credentials) => {
-        try {
-            const res = await AuthService.login(credentials);
-            const user = res.data;
-            
-            // Guardar en localStorage Y en el estado
-            localStorage.setItem('user', JSON.stringify(user));
-            setCurrentUser(user);
+  const login = async (credenciales) => {
+    try {
+      const { data } = await AuthService.login(credenciales);
 
-            // Redirigir según el rol
-            switch (user.rol) {
-                case 'ADMIN':
-                    navigate('/intranet-admin');
-                    break;
-                case 'ALMACENERO':
-                    navigate('/intranet-almacen');
-                    break;
-                case 'VENDEDOR':
-                    navigate('/intranet-vendedor');
-                    break;
-                default:
-                    // ¡Importante! Si es un cliente normal, lo mandamos al Home
-                    navigate('/');
-            }
-            // Devolvemos éxito
-            return { success: true };
+      if (data.mfaRequired) {
+        return { success: true, mfaRequired: true, challenge: data };
+      }
 
-        } catch (error) {
-            console.error("Error en el login del AuthContext", error);
-            // Devolvemos el error para que el formulario lo muestre
-            return { success: false, error: error.response?.data?.error || 'Error de credenciales' };
-        }
-    };
+      setCurrentUser(data);
 
-    // 4. Función de Logout
-    const logout = () => {
-        localStorage.removeItem('user');
-        setCurrentUser(null);
-        navigate('/login'); // O al Home '/'
-    };
+      // Cada rol entra siempre a su propio escritorio. Solo se respeta el
+      // destino previo si era una pagina de la tienda (p. ej. el checkout).
+      navigate(destinoTrasLogin(data.rol, location.state?.destino), { replace: true });
 
-    // 5. El valor que compartiremos
-    const value = {
-        currentUser,
-        loading,
-        login,
-        logout
-    };
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: mensajeDeError(error, 'No pudimos validar tus credenciales.') };
+    }
+  };
 
-    // No renderizamos nada hasta saber si el usuario está logueado o no
-    return (
-        <AuthContext.Provider value={value}>
-            {!loading && children}
-        </AuthContext.Provider>
-    );
+  const logout = async () => {
+    try {
+      await AuthService.logout();
+    } finally {
+      setCurrentUser(null);
+      navigate('/login');
+    }
+  };
+
+  const verifyMfa = async ({ challengeId, codigo }) => {
+    try {
+      const { data: usuario } = await AuthService.verificarMfa({ challengeId, codigo });
+      setCurrentUser(usuario);
+      navigate(destinoTrasLogin(usuario.rol, location.state?.destino), { replace: true });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: mensajeDeError(error, 'No pudimos validar el código.') };
+    }
+  };
+
+  const resendMfa = async (challengeId) => {
+    try {
+      const { data } = await AuthService.reenviarMfa(challengeId);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: mensajeDeError(error, 'No pudimos reenviar el código.') };
+    }
+  };
+
+  const value = { currentUser, loading, login, verifyMfa, resendMfa, logout };
+
+  // No renderizamos nada hasta saber si hay sesion, para evitar que una ruta
+  // protegida mande al login por un instante antes de leer localStorage.
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };

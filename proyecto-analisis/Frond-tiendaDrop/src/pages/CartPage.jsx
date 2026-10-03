@@ -1,223 +1,113 @@
-import React from 'react';
-import { useCart } from './CartContext.jsx';
-import { useAuth } from './AuthContext.jsx';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/cart';
+import { useAuth } from '../context/auth';
+import { resolverUrlImagen } from '../services/api';
+import { soles, talla } from '../utils/formato';
+import Icon from '../components/Icon';
+import '../css/Checkout.css';
 
-// Estilos para la página del carrito (CSS-in-JS)
-const styles = {
-    container: {
-        maxWidth: '1200px',
-        margin: '40px auto',
-        padding: '20px',
-        fontFamily: 'Arial, sans-serif'
-    },
-    title: {
-        fontSize: '2rem',
-        borderBottom: '2px solid #f0f0f0',
-        paddingBottom: '10px',
-        marginBottom: '30px'
-    },
-    cartLayout: {
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '30px'
-    },
-    itemsList: {
-        flex: 2, // Ocupa 2/3 del espacio
-    },
-    summary: {
-        flex: 1, // Ocupa 1/3 del espacio
-        backgroundColor: '#f9f9f9',
-        padding: '20px',
-        borderRadius: '8px',
-        height: 'fit-content' // Para que no se estire
-    },
-    summaryTitle: {
-        fontSize: '1.5rem',
-        marginBottom: '20px'
-    },
-    summaryRow: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginBottom: '15px',
-        fontSize: '1rem'
-    },
-    summaryTotal: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '20px',
-        paddingTop: '20px',
-        borderTop: '2px solid #ddd',
-        fontSize: '1.2rem',
-        fontWeight: 'bold'
-    },
-    payButton: {
-        width: '100%',
-        padding: '15px',
-        fontSize: '1.1rem',
-        backgroundColor: '#2ecc71',
-        color: 'white',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginTop: '20px'
-    },
-    emptyCart: {
-        textAlign: 'center',
-        padding: '50px'
-    },
-    continueShoppingBtn: {
-        padding: '10px 20px',
-        backgroundColor: '#3498db',
-        color: 'white',
-        textDecoration: 'none',
-        borderRadius: '5px',
-        fontSize: '1rem'
-    },
-    cartItem: {
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '20px',
-        borderBottom: '1px solid #eee',
-        paddingBottom: '20px'
-    },
-    itemImage: {
-        width: '100px',
-        height: '100px',
-        objectFit: 'cover',
-        borderRadius: '8px',
-        marginRight: '20px'
-    },
-    itemDetails: {
-        flex: 1
-    },
-    itemName: {
-        fontSize: '1.2rem',
-        fontWeight: 'bold'
-    },
-    itemPrice: {
-        fontSize: '1rem',
-        color: '#555',
-        margin: '5px 0'
-    },
-    itemQuantity: {
-        fontSize: '0.9rem'
-    },
-    removeItemBtn: {
-        padding: '5px 10px',
-        backgroundColor: '#e74c3c',
-        color: 'white',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer'
-    }
-};
-
+const COSTO_ENVIO = 17.00;
+const PORCENTAJE_IGV = 0.18;
 
 function CartPage() {
-    // 1. Obtener datos de los Contextos
-    const { cartItems, cartTotal, removeItem, clearCart } = useCart();
-    const { currentUser } = useAuth();
-    const navigate = useNavigate();
+  const { cartItems, cartTotal, itemCount, removeItem, updateQuantity, clearCart } = useCart();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-    // 2. Definir costos fijos y calcular totales
-    const COSTO_ENVIO = 17.00;
-    const PORCENTAJE_IGV = 0.18; // 18%
+  const subtotal = cartTotal;
+  const igv = subtotal * PORCENTAJE_IGV;
+  const totalFinal = subtotal + igv + COSTO_ENVIO;
 
-    const subtotal = cartTotal;
-    const igv = subtotal * PORCENTAJE_IGV;
-    const totalFinal = subtotal + igv + COSTO_ENVIO;
+  const handleCheckout = () => {
+    navigate(currentUser ? '/proceso-pago' : '/login', {
+      state: currentUser ? undefined : { destino: '/carrito' },
+    });
+  };
 
-    // 3. Manejar el clic en "Pagar"
-    const handleCheckout = () => {
-        if (currentUser) {
-            // Si el usuario está logueado, lo llevamos a la página de pago
-            console.log("Usuario logueado, yendo a pagar...");
-            navigate('/proceso-pago'); // (Crearemos esta página después)
-        } else {
-            // Si no está logueado, lo mandamos al login
-            console.log("Usuario no logueado, mandando a /login");
-            navigate('/login');
-        }
-    };
-
-    // 4. Renderizar un mensaje si el carrito está vacío
-    if (cartItems.length === 0) {
-        return (
-            <div style={styles.container}>
-                <div style={styles.emptyCart}>
-                    <h1 style={styles.title}>Tu carrito está vacío</h1>
-                    <p style={{ marginBottom: '30px' }}>Parece que aún no has agregado productos.</p>
-                    <Link to="/catalogo" style={styles.continueShoppingBtn}>
-                        Ir a la tienda
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
-    // 5. Renderizar el carrito si tiene productos
+  if (cartItems.length === 0) {
     return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>Mi Carrito</h1>
-            <div style={styles.cartLayout}>
-
-                {/* Columna Izquierda: Lista de Productos */}
-                <div style={styles.itemsList}>
-                    {cartItems.map(item => (
-                        <div key={item.id} style={styles.cartItem}>
-                            <img
-                                src={`http://localhost:8081${item.foto}`}
-                                alt={item.nombre}
-                                style={styles.itemImage}
-                            />
-                            <div style={styles.itemDetails}>
-                                <span style={styles.itemName}>{item.nombre}</span>
-                                <p style={styles.itemPrice}>S/ {item.prcio_venta.toFixed(2)}</p>
-                                <p style={styles.itemQuantity}>Cantidad: {item.quantity}</p>
-                            </div>
-                            <button
-                                onClick={() => removeItem(item.varianteId)} style={styles.removeItemBtn}
-                            >
-                                Quitar
-                            </button>
-                        </div>
-                    ))}
-                    <button
-                        onClick={clearCart}
-                        style={{ ...styles.removeItemBtn, backgroundColor: '#f39c12', marginTop: '20px' }}
-                    >
-                        Vaciar Carrito
-                    </button>
-                </div>
-
-                {/* Columna Derecha: Resumen de Pago */}
-                <div style={styles.summary}>
-                    <h2 style={styles.summaryTitle}>Resumen del Pedido</h2>
-                    <div style={styles.summaryRow}>
-                        <span>Subtotal:</span>
-                        <span>S/ {subtotal.toFixed(2)}</span>
-                    </div>
-                    <div style={styles.summaryRow}>
-                        <span>Envío:</span>
-                        <span>S/ {COSTO_ENVIO.toFixed(2)}</span>
-                    </div>
-                    <div style={styles.summaryRow}>
-                        <span>IGV (18%):</span>
-                        <span>S/ {igv.toFixed(2)}</span>
-                    </div>
-                    <div style={styles.summaryTotal}>
-                        <span>Total:</span>
-                        <span>S/ {totalFinal.toFixed(2)}</span>
-                    </div>
-                    <button onClick={handleCheckout} style={styles.payButton}>
-                        {currentUser ? 'Ir a Pagar' : 'Iniciar Sesión para Pagar'}
-                    </button>
-                </div>
-
-            </div>
-        </div>
+      <div className="container checkout-empty">
+        <Icon name="bag" size={40} strokeWidth={1.25} />
+        <h1 className="page-title">Tu carrito está vacío</h1>
+        <p>Cuando agregues un par lo verás aquí, con su talla y el total del pedido.</p>
+        <Link to="/catalogo" className="btn btn--primary">Ver zapatillas</Link>
+      </div>
     );
+  }
+
+  return (
+    <div className="container checkout">
+      <header className="checkout-head">
+        <h1 className="page-title">Tu carrito</h1>
+        <p>{itemCount} {itemCount === 1 ? 'par' : 'pares'}</p>
+      </header>
+
+      <div className="checkout-layout">
+        <section aria-label="Productos en el carrito">
+          <ul className="cart-lines">
+            {cartItems.map((item) => (
+              <li key={item.varianteId} className="cart-line">
+                <Link to={`/producto/${item.id}`} className="cart-line-media" tabIndex={-1} aria-hidden="true">
+                  <img src={resolverUrlImagen(item.foto)} alt="" />
+                </Link>
+                <div className="cart-line-info">
+                  <Link to={`/producto/${item.id}`} className="cart-line-name">{item.nombre}</Link>
+                  <p>Talla {talla(item.talla)} · {soles(item.prcio_venta)} c/u</p>
+                  {item.quantity >= item.stock && <p className="cart-line-limit">Llegaste al stock disponible en esta talla.</p>}
+                </div>
+                <div className="stepper" role="group" aria-label={`Cantidad de ${item.nombre}`}>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.varianteId, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                    aria-label="Quitar un par"
+                  >
+                    <Icon name="minus" size={16} />
+                  </button>
+                  <output aria-live="polite">{item.quantity}</output>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.varianteId, item.quantity + 1)}
+                    disabled={item.quantity >= item.stock}
+                    aria-label="Agregar un par"
+                  >
+                    <Icon name="plus" size={16} />
+                  </button>
+                </div>
+                <p className="cart-line-total">{soles(item.prcio_venta * item.quantity)}</p>
+                <button
+                  type="button"
+                  className="cart-line-remove"
+                  onClick={() => removeItem(item.varianteId)}
+                  aria-label={`Quitar ${item.nombre} talla ${talla(item.talla)} del carrito`}
+                >
+                  <Icon name="trash" size={18} />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="cart-actions">
+            <Link to="/catalogo" className="link">Seguir comprando</Link>
+            <button type="button" className="cart-clear" onClick={clearCart}>Vaciar carrito</button>
+          </div>
+        </section>
+
+        <aside className="checkout-summary" aria-labelledby="resumen-title">
+          <h2 id="resumen-title">Resumen</h2>
+          <dl className="checkout-totals">
+            <div><dt>Subtotal</dt><dd>{soles(subtotal)}</dd></div>
+            <div><dt>Envío</dt><dd>{soles(COSTO_ENVIO)}</dd></div>
+            <div><dt>IGV (18 %)</dt><dd>{soles(igv)}</dd></div>
+            <div className="checkout-grand"><dt>Total</dt><dd>{soles(totalFinal)}</dd></div>
+          </dl>
+          <button type="button" className="btn btn--red btn--block checkout-cta" onClick={handleCheckout}>
+            {currentUser ? 'Ir a pagar' : 'Inicia sesión para pagar'}
+          </button>
+          <p className="checkout-secure"><Icon name="shield" size={18} /> Pago seguro con tarjeta, Yape o Plin</p>
+        </aside>
+      </div>
+    </div>
+  );
 }
 
 export default CartPage;

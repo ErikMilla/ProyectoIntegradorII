@@ -25,6 +25,24 @@ public class Venta {
     // Mapeamos el campo 'costoEnvio' (camelCase) a la columna 'costo_envio' (snake_case)
     @Column(name = "costo_envio")
     private Double costoEnvio;
+
+    @Column(name = "descuento")
+    private Double descuento;
+
+    @Column(name = "codigo_descuento", length = 40)
+    private String codigoDescuento;
+
+    // --- Datos de entrega / contacto del comprador ---
+    // Se guardan como copia en el momento de la venta: si el cliente cambia
+    // luego su direccion, la boleta antigua sigue mostrando a donde se envio.
+    @Column(name = "nombre_cliente")
+    private String nombreCliente;
+
+    @Column(name = "telefono_cliente")
+    private String telefonoCliente;
+
+    @Column(name = "direccion_envio", length = 255)
+    private String direccionEnvio;
     
     // --- FIN DE CAMPOS NUEVOS ---
     
@@ -109,5 +127,45 @@ public class Venta {
 
     public void setCostoEnvio(Double costoEnvio) {
         this.costoEnvio = costoEnvio;
+    }
+
+    public Double getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(Double descuento) {
+        this.descuento = descuento;
+    }
+
+    public String getCodigoDescuento() {
+        return codigoDescuento;
+    }
+
+    public void setCodigoDescuento(String codigoDescuento) {
+        this.codigoDescuento = codigoDescuento;
+    }
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public String getTelefonoCliente() {
+        return telefonoCliente;
+    }
+
+    public void setTelefonoCliente(String telefonoCliente) {
+        this.telefonoCliente = telefonoCliente;
+    }
+
+    public String getDireccionEnvio() {
+        return direccionEnvio;
+    }
+
+    public void setDireccionEnvio(String direccionEnvio) {
+        this.direccionEnvio = direccionEnvio;
     }
 }

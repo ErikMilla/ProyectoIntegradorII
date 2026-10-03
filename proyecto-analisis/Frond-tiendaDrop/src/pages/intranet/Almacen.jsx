@@ -1,85 +1,47 @@
-import React, { useState } from 'react';
-import SidebarAlmacen from '../../components/almacen/SidebarAlmacen';
-import InventarioManagement from '../../components/almacen/InventarioManagement'; // Asumimos que es el formulario para NUEVO
-import CategoriaManagement from '../../components/almacen/CategoriaManagement';
-import MarcaManagement from '../../components/almacen/MarcaManagement';
-import ProductList from '../../components/almacen/ProductList';
-import ProductForm from '../../components/almacen/ProductForm'; // 👈 Usaremos este para la EDICIÓN
+import { useState } from 'react';
+import BarraLateral from '../../components/shared/BarraLateral';
+import AlertasStock from '../../components/shared/AlertasStock';
+import GestionInventario from '../../components/shared/GestionInventario';
+import Reportes from '../../components/shared/Reportes';
+import '../../css/Intranet.css';
 
+const MENU = [
+  ['alertas', 'alert', 'Alertas'],
+  ['inventario', 'box', 'Inventario'],
+  ['reportes', 'chart', 'Reportes'],
+];
 
-// Asegúrate de importar tu CSS aquí (ejemplo de nombre)
-import '../../css/intranet.css';
-
+/**
+ * Panel del almacenero: controla el catalogo y el stock.
+ *
+ * Usa exactamente el mismo componente de inventario que el administrador. Antes
+ * existia una copia aparte (InventarioManagement + ProductForm + ProductList)
+ * que se habia ido desincronizando de la version del panel admin.
+ *
+ * Entra directo a Alertas: es lo primero que necesita saber al llegar, no algo
+ * que tenga que ir a buscar al dashboard del administrador (al que no tiene
+ * acceso).
+ */
 function IntranetAlmacen() {
-  const [seccionActiva, setSeccionActiva] = useState('inventario');
-  // 🚨 1. Nuevo estado para guardar el ID del producto que se va a editar
-  const [productoIdAEditar, setProductoIdAEditar] = useState(null); 
+  const [seccion, setSeccion] = useState('alertas');
 
-  // 🚨 2. Función unificada para gestionar el cambio de vista y el ID
-  const handleViewChange = (newView, productId = null) => {
-    setProductoIdAEditar(productId);
-    setSeccionActiva(newView);
-  };
-
-  const renderContent = () => {
-    // ------------------------------------------
-    // VISTA DE EDICIÓN: 'editar'
-    // ------------------------------------------
-    if (seccionActiva === 'editar' && productoIdAEditar) {
-      return (
-        <ProductForm 
-          productId={productoIdAEditar}
-          // Cuando se guarda o cancela, volvemos a la lista ('inventario')
-          onFinish={() => handleViewChange('inventario')} 
-        />
-      );
-    }
-    
-    // ------------------------------------------
-    // OTRAS VISTAS (Lista, Nuevo, Categorías, Marcas)
-    // ------------------------------------------
-    switch (seccionActiva) {
-      case 'inventario':
-        return (
-            <ProductList 
-                // onNew cambia a 'NuevoProducto'
-                onNew={() => handleViewChange('NuevoProducto')} 
-                // 🚨 onEdit cambia a 'editar' y pasa el ID del producto
-                onEdit={(id) => handleViewChange('editar', id)}
-            />
-        );
-      case 'categorias':
-        return <CategoriaManagement />;
-      case 'marcas':
-        return <MarcaManagement />;
-      case 'NuevoProducto':
-        // Asumiendo que InventarioManagement es el formulario de registro (nuevo)
-        return (
-            <InventarioManagement 
-                 // Asumimos que InventarioManagement tiene un onFinish para volver a la lista
-                 onFinish={() => handleViewChange('inventario')}
-            />
-        );
-      default:
-        return <div>Selecciona una opción del menú.</div>;
-    }
+  const secciones = {
+    alertas: <AlertasStock onNavigate={setSeccion} />,
+    inventario: <GestionInventario />,
+    reportes: <Reportes />,
   };
 
   return (
-    <div className="intranet-layout">
-
-      {/* 1. Barra Lateral */}
-      <SidebarAlmacen
-        seccionActiva={seccionActiva}
-        setSeccionActiva={setSeccionActiva}
+    <div className="backoffice-layout">
+      <BarraLateral
+        titulo="Almacén"
+        opciones={MENU}
+        seccionActiva={seccion}
+        setSeccionActiva={setSeccion}
       />
-
-      {/* 2. Contenido Principal */}
-      <div className="intranet-content">
-        <h1>Control de Catálogo y Logística</h1>
-        <p>Bienvenido. Utiliza el menú lateral para gestionar productos, tallas y stock.</p>
-        {renderContent()}
-      </div>
+      <main className="backoffice-content">
+        {secciones[seccion] || secciones.alertas}
+      </main>
     </div>
   );
 }

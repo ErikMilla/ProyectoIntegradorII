@@ -11,6 +11,8 @@ public class DetalleRegistroDTO implements Serializable {
     private int stock;
     private String color;
     private Long marcaId; // Necesario para la relación ManyToOne
+    // Solo de lectura: lo usa la ficha pública para mostrar "Adidas" en vez de un id.
+    private String marcaNombre;
     
     // Getters y Setters
     public String getGenero() {
@@ -43,6 +45,14 @@ public class DetalleRegistroDTO implements Serializable {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getMarcaNombre() {
+        return marcaNombre;
+    }
+
+    public void setMarcaNombre(String marcaNombre) {
+        this.marcaNombre = marcaNombre;
     }
 
     public Long getMarcaId() {

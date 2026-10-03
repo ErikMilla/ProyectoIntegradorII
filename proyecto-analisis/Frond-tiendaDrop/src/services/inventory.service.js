@@ -1,69 +1,52 @@
-import axios from 'axios';
+import api from './api';
 
-// Usamos la misma configuración base que auth.service.js
-const API_URL = 'http://localhost:8081/api';
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
-});
-
+/**
+ * Operaciones sobre el catalogo: categorias, marcas y productos con sus tallas.
+ *
+ * Un "producto" es el modelo (ej. Air Force 1 blanca) y una "variante" o
+ * "detalle" es una talla concreta de ese modelo, con su propio stock. El
+ * backend devuelve siempre la lista de variantes; agruparPorProducto() las
+ * junta por modelo para mostrarlas en pantalla.
+ */
 const InventoryService = {
-  // === CATEGORÍAS ===
-  getAllCategorias: () => {
-    return api.get('/categorias');
-  },
-  createCategoria: (nombre) => {
-    return api.post('/categorias', { nombre });
-  },
-  updateCategoria: (id, nombre) => {
-    return api.put(`/categorias/${id}`, { nombre });
-  },
-  deleteCategoria: (id) => {
-    return api.delete(`/categorias/${id}`);
-  },
+  // === CATEGORIAS ===
+  getAllCategorias: () => api.get('/categorias'),
+  createCategoria: (nombre) => api.post('/categorias', { nombre }),
+  updateCategoria: (id, nombre) => api.put(`/categorias/${id}`, { nombre }),
+  deleteCategoria: (id) => api.delete(`/categorias/${id}`),
 
-  // === MARCAS ===
-  getAllMarcas: () => {
-    return api.get('/marcas');
-  },
-  createMarca: (nombre) => {
-    return api.post('/marcas', { nombre });
-  },
-  updateMarca: (id, nombre) => {
-    return api.put(`/marcas/${id}`, { nombre });
-  },
-  deleteMarca: (id) => {
-    return api.delete(`/marcas/${id}`);
-  },
+  // === MARCAS ===
+  getAllMarcas: () => api.get('/marcas'),
+  createMarca: (nombre) => api.post('/marcas', { nombre }),
+  updateMarca: (id, nombre) => api.put(`/marcas/${id}`, { nombre }),
+  deleteMarca: (id) => api.delete(`/marcas/${id}`),
 
-  // === PRODUCTOS ===
+  // === PRODUCTOS ===
+  /** Devuelve todas las variantes. Acepta filtros { genero, marca }. */
+  getAllProductos: (filtros = {}) => {
+    const params = new URLSearchParams();
+    if (filtros.genero) params.append('genero', filtros.genero);
+    if (filtros.marca) params.append('marca', filtros.marca);
+    const consulta = params.toString();
+    return api.get(consulta ? `/productos?${consulta}` : '/productos');
+  },
+  getMasVendidos: () => api.get('/productos/mas-vendidos'),
 
-  // ⚠️ CORREGIDO: Renombrado de 'createProduct' a 'createProducto'
-  createProducto: (productData) => {
-    return api.post('/productos', productData);
-  },
+  /**
+   * Crear producto requiere multipart porque incluye la foto.
+   * Recibe el objeto { producto, variantes } y el archivo de imagen.
+   */
+  createProducto: (payload, archivoFoto) => {
+    const cuerpo = new FormData();
+    cuerpo.append('file', archivoFoto);
+    cuerpo.append('data', JSON.stringify(payload));
+    // Se deja que el navegador ponga el Content-Type con su boundary.
+    return api.post('/productos', cuerpo, { headers: { 'Content-Type': undefined } });
+  },
 
-  getAllProductos: () => {
-    return api.get('/productos');
-  },
-  
-  // ⚠️ CORREGIDO: Renombrado de 'getProductById' a 'getProductoConVariantes'
-  // (Esta es la función que daba el error)
-  getProductoConVariantes: (id) => {
-    // Asume que /productos/{id} devuelve el producto Y sus variantes
-    return api.get(`/productos/${id}`); 
-  },
-  
-  // ⚠️ CORREGIDO: Renombrado de 'updateProduct' a 'updateProducto'
-  updateProducto: (id, productData) => {
-    return api.put(`/productos/${id}`, productData); 
-  },
-
-  deleteProduct: (id) => {
-    return api.delete(`/productos/${id}`);
-  },
+  getProductoConVariantes: (id) => api.get(`/productos/${id}`),
+  updateProducto: (id, payload) => api.put(`/productos/${id}`, payload),
+  deleteProduct: (id) => api.delete(`/productos/${id}`),
 };
 
 export default InventoryService;

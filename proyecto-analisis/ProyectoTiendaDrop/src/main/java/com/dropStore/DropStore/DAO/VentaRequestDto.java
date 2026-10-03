@@ -17,7 +17,10 @@ public class VentaRequestDto {
     private double costoEnvio;
     private double igv;
     private double total;
-    private ClienteDto cliente; // Objeto anidado para datos del cliente
+    private ClienteDto cliente; // Datos de contacto/entrega del comprador
+    // "Online" (tienda web) o "Presencial" (POS). Si no llega, se asume Online.
+    private String tipoVenta;
+    private String codigoDescuento;
     private List<DetalleVentaRequestDto> items; // Lista de items del carrito
 
     // Getters y Setters
@@ -33,6 +36,10 @@ public class VentaRequestDto {
     public void setIgv(double igv) { this.igv = igv; }
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
+    public String getTipoVenta() { return tipoVenta; }
+    public void setTipoVenta(String tipoVenta) { this.tipoVenta = tipoVenta; }
+    public String getCodigoDescuento() { return codigoDescuento; }
+    public void setCodigoDescuento(String codigoDescuento) { this.codigoDescuento = codigoDescuento; }
     public ClienteDto getCliente() { return cliente; }
     public void setCliente(ClienteDto cliente) { this.cliente = cliente; }
     public List<DetalleVentaRequestDto> getItems() { return items; }

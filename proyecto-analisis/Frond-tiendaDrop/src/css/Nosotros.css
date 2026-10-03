@@ -1,0 +1,50 @@
+.about { padding-bottom: 2rem; }
+
+.about-heading {
+  margin: 0;
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  font-stretch: 68%;
+  font-weight: 850;
+  line-height: .92;
+  text-transform: uppercase;
+}
+
+.about-intro { background: var(--ink); color: #fff; }
+.about-intro .container { display: grid; gap: 1.75rem; padding-block: clamp(5rem, 12vw, 9rem) clamp(3rem, 6vw, 4.5rem); }
+.about-intro h1 { max-width: 9ch; font-size: clamp(4rem, 12vw, 10rem); }
+.about-intro p { max-width: 36rem; margin: 0; color: #d4d4ce; font-size: 1.1875rem; line-height: 1.6; }
+
+.about-story {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  padding-block: clamp(4rem, 8vw, 6.5rem);
+}
+.about-story p { max-width: 36rem; margin: 0 0 1rem; color: var(--ink-soft); font-size: 1.125rem; line-height: 1.7; }
+
+.about-values { padding-bottom: clamp(4rem, 8vw, 6.5rem); }
+.about-values ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin: 2.5rem 0 0; padding: 0; list-style: none; }
+.about-values li { padding-top: 1.5rem; border-top: 2px solid var(--ink); }
+.about-values .icon { color: var(--red); }
+.about-values h3 { margin: 1rem 0 .5rem; font-size: 1.25rem; }
+.about-values p { max-width: 22rem; margin: 0; color: var(--muted); line-height: 1.6; }
+
+.about-shipping { background: var(--concrete); scroll-margin-top: 80px; }
+.about-shipping .container { padding-block: clamp(4rem, 8vw, 6rem); }
+.about-shipping dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin: 2.5rem 0 0; }
+.about-shipping dl > div { display: grid; align-content: start; gap: .5rem; padding: 1.5rem; background: #fff; }
+.about-shipping dt { color: var(--muted); font-size: .9375rem; }
+.about-shipping dd { display: grid; gap: .375rem; margin: 0; color: var(--ink-soft); font-size: .9375rem; line-height: 1.5; }
+.about-shipping dd strong { color: var(--ink); font-size: 1.75rem; font-stretch: 75%; font-weight: 800; line-height: 1.1; }
+
+.about-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: clamp(4rem, 8vw, 6rem); }
+
+@media (max-width: 960px) {
+  .about-shipping dl { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .about-story,
+  .about-values ul { grid-template-columns: 1fr; }
+  .about-shipping dl { grid-template-columns: 1fr; }
+}

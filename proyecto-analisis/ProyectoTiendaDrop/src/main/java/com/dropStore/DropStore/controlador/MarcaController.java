@@ -14,7 +14,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/marcas")
 // Aseguramos la comunicación con tu frontend en 5173
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class MarcaController {
     @Autowired
     private MarcaRepository marcaRepository;

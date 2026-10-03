@@ -1,21 +1,11 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8081/api/usuarios';
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
-});
+import api from './api';
 
 const UserService = {
-  getAll: () => api.get(''),
-  getClientes: () => {
-    return api.get('/clientes');
-  },
-  create: (user) => api.post('', user),
-  update: (id, user) => api.put(`/${id}`, user),
-  remove: (id) => api.delete(`/${id}`),
+  getAll: () => api.get('/usuarios'),
+  getClientes: () => api.get('/usuarios/clientes'),
+  create: (usuario) => api.post('/usuarios', usuario),
+  update: (id, usuario) => api.put(`/usuarios/${id}`, usuario),
+  remove: (id) => api.delete(`/usuarios/${id}`),
 };
 
 export default UserService;

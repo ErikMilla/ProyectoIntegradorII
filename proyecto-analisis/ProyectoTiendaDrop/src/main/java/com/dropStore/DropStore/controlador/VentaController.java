@@ -14,10 +14,18 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 import com.dropStore.DropStore.Modelo.DetalleVenta;
+import com.dropStore.DropStore.security.SessionUser;
+import org.springframework.security.core.Authentication;
+import com.dropStore.DropStore.service.ReporteService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
 @RequestMapping("/api/v1/ventas")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class VentaController {
 
     @Autowired
@@ -25,10 +33,17 @@ public class VentaController {
 
     @Autowired
     private com.dropStore.DropStore.Repositorio.VentaRepository ventaRepository;
+
+    @Autowired
+    private ReporteService reporteService;
     
     @PostMapping
-    public ResponseEntity<?> crearVenta(@RequestBody VentaRequestDto ventaDto) {
+    public ResponseEntity<?> crearVenta(@RequestBody VentaRequestDto ventaDto, Authentication autenticacion) {
         try {
+            SessionUser sesion = (SessionUser) autenticacion.getPrincipal();
+            if ("CLIENTE".equals(sesion.rol())) {
+                ventaDto.setUsuarioId(sesion.id());
+            }
             Venta ventaCreada = ventaService.registrarVenta(ventaDto);
             // Si todo va bien, devolvemos 201 Created y la venta
             return new ResponseEntity<>(ventaCreada, HttpStatus.CREATED);
@@ -40,6 +55,8 @@ public class VentaController {
                 Map.of("message", e.getMessage()), 
                 HttpStatus.BAD_REQUEST
             );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
             // Para cualquier otro error (ej: Usuario no encontrado, Producto no encontrado)
             return new ResponseEntity<>(
@@ -50,7 +67,11 @@ public class VentaController {
     }
     
         @GetMapping("/usuario/{id}")
-    public ResponseEntity<List<Venta>> getVentasPorUsuario(@PathVariable Long id) {
+    public ResponseEntity<List<Venta>> getVentasPorUsuario(@PathVariable Long id, Authentication autenticacion) {
+        SessionUser sesion = (SessionUser) autenticacion.getPrincipal();
+        if ("CLIENTE".equals(sesion.rol()) && !sesion.id().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<Venta> historial = ventaService.listarVentasPorUsuario(id);
         if (historial.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -63,9 +84,36 @@ public class VentaController {
         return ResponseEntity.ok(ventaRepository.findAllByOrderByFechaDesc());
     }
 
+    @GetMapping("/pagina")
+    public ResponseEntity<Page<Venta>> buscarVentas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        int tamanoSeguro = Math.min(Math.max(size, 1), 100);
+        Date fechaDesde = desde == null ? null
+                : Date.from(desde.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date fechaHasta = hasta == null ? null
+                : Date.from(hasta.plusDays(1).atStartOfDay(ZoneId.systemDefault()).minusNanos(1).toInstant());
+        String texto = q == null || q.isBlank() ? null : q.trim();
+        return ResponseEntity.ok(ventaRepository.buscar(texto, fechaDesde, fechaHasta,
+                PageRequest.of(Math.max(page, 0), tamanoSeguro)));
+    }
+
+    @GetMapping("/reportes/resumen")
+    public ResponseEntity<Map<String, Object>> getResumenReportes() {
+        return ResponseEntity.ok(reporteService.resumen());
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getDetalleVenta(@PathVariable Long id) {
+    public ResponseEntity<?> getDetalleVenta(@PathVariable Long id, Authentication autenticacion) {
         return ventaRepository.findById(id).map(venta -> {
+            SessionUser sesion = (SessionUser) autenticacion.getPrincipal();
+            if ("CLIENTE".equals(sesion.rol())
+                    && (venta.getUsuario() == null || !sesion.id().equals(venta.getUsuario().getId()))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "No autorizado."));
+            }
             List<Map<String, Object>> items = ventaService.listarDetalles(id).stream().map(detalle -> {
                 Map<String, Object> item = new LinkedHashMap<>();
                 item.put("id", detalle.getId());
