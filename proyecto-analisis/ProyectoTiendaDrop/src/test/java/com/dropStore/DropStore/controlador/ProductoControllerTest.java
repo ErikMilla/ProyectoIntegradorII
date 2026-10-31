@@ -17,11 +17,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -82,5 +84,50 @@ class ProductoControllerTest {
 
         assertEquals(409, controller.eliminarProducto(3L).getStatusCode().value());
         verify(productoRepository, never()).delete(any());
+    }
+
+    @Test
+    void rechazaCrearUnProductoConDescripcionDeMasDeMilCaracteres() {
+        String json = "{\"producto\":{\"nombre\":\"Zapatilla\",\"descripcion\":\"" + "a".repeat(1001)
+                + "\"},\"variantes\":[]}";
+        MockMultipartFile foto = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1});
+
+        var respuesta = controller.registrarProducto(foto, json);
+
+        assertEquals(400, respuesta.getStatusCode().value());
+        assertTrue(String.valueOf(respuesta.getBody()).contains("1000"));
+        verify(productoRepository, never()).save(any());
+    }
+
+    @Test
+    void rechazaEditarUnProductoConDescripcionDeMasDeMilCaracteres() {
+        producto existente = new producto();
+        existente.setId(3L);
+        ProductoRegistroDTO productoDto = new ProductoRegistroDTO();
+        productoDto.setDescripcion("a".repeat(1001));
+        ProductoConVariantesDTO solicitud = new ProductoConVariantesDTO();
+        solicitud.setProducto(productoDto);
+        solicitud.setVariantes(List.of(new DetalleRegistroDTO()));
+
+        when(productoRepository.findById(3L)).thenReturn(Optional.of(existente));
+
+        var respuesta = controller.actualizarProducto(3L, solicitud);
+
+        assertEquals(400, respuesta.getStatusCode().value());
+        assertTrue(String.valueOf(respuesta.getBody()).contains("1000"));
+        verify(productoRepository, never()).save(any());
+    }
+
+    @Test
+    void aceptaUnaDescripcionDeExactamenteMilCaracteresSinRechazarlaPorLongitud() {
+        String json = "{\"producto\":{\"nombre\":\"Zapatilla\",\"descripcion\":\"" + "a".repeat(1000)
+                + "\"},\"variantes\":[]}";
+        MockMultipartFile foto = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[]{1});
+
+        var respuesta = controller.registrarProducto(foto, json);
+
+        // Falla después, por otro motivo (falta la categoría), no por la longitud.
+        assertEquals(400, respuesta.getStatusCode().value());
+        assertEquals("Debe especificar una categoría.", respuesta.getBody());
     }
 }

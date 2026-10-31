@@ -68,5 +68,8 @@ jobs:
       - name: Revisar estilo (lint)
         run: npm run lint
 
+      - name: Ejecutar pruebas (Vitest)
+        run: npm test
+
       - name: Compilar para producción
         run: npm run build
