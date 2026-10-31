@@ -66,6 +66,8 @@ public class SecurityConfig {
                 // Las fotos de producto se muestran en la tienda publica.
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/stock/eventos", "/actuator/health/**").permitAll()
+                // Métricas internas del servidor (CPU, memoria, BD): solo el administrador.
+                .requestMatchers("/actuator/metrics", "/actuator/metrics/**").hasRole("ADMIN")
                 // Catalogo publico: el cliente navega sin iniciar sesion.
                 .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/marcas/**", "/api/categorias/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/productos/**", "/api/marcas/**", "/api/categorias/**")
