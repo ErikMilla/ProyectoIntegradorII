@@ -41,3 +41,6 @@ backend-mfa.*.log
 
 # Marcadores generados automáticamente por DataSeeder
 /uploads/z2-*.svg
+
+### Secretos locales ###
+secrets.properties
