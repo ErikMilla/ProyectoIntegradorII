@@ -116,6 +116,8 @@ El cupón de demostración `DROP10` aplica un 10 % antes del IGV. El servidor
 valida el código y recalcula el comprobante, tanto en la tienda como en el POS.
 
 El estado del backend puede consultarse en `http://localhost:8081/actuator/health`.
+Las métricas del servidor (CPU, memoria, disco y conexiones a la base de datos) están en
+`/actuator/metrics`, y solo las ve un ADMIN con sesión iniciada.
 Las evidencias de cumplimiento y rendimiento están en `EVIDENCIAS_REQUISITOS.md`.
 
 ### Frontend
@@ -202,6 +204,17 @@ no se guarda nada.
 Si alguien escribe una de estas rutas sin permiso, el sistema lo devuelve a su propia
 pantalla de inicio.
 
+Módulos que ve cada rol dentro de su pantalla:
+
+| Rol | Módulos |
+|---|---|
+| ADMIN | Dashboard, Usuarios, Facturación, Inventario, Clientes, Punto de venta, Reportes, Contenido y Configuración |
+| ALMACENERO | Alertas de stock, Inventario y Reportes (sin la pestaña Clientes) |
+| VENDEDOR | Punto de venta, Clientes e Historial de ventas |
+| CLIENTE | La tienda: catálogo, carrito, pago y *Mis pedidos* (`/mis-pedidos`) |
+
+Qué puede hacer cada rol en el servidor está en la matriz de la sección 7.
+
 El administrador dispone de la sección **Contenido** dentro de su intranet. Desde allí puede
 cambiar la imagen, los textos, el botón, la franja promocional, el enfoque y la altura del
 banner de inicio. Se recomiendan imágenes horizontales de 1920 × 900 px en JPG o WEBP.
@@ -212,24 +225,101 @@ banner de inicio. Se recomiendan imágenes horizontales de 1920 × 900 px en JPG
 
 Base: `http://localhost:8081`
 
-| Método | Ruta | Qué hace |
-|---|---|---|
-| `POST` | `/api/auth/login` | Iniciar sesión |
-| `POST` | `/api/auth/registro` | Registrar un cliente |
-| `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros |
-| `GET` | `/api/productos/{id}` | Un producto con todas sus tallas |
-| `GET` | `/api/contenido-tienda` | Contenido público del banner y la franja promocional |
-| `PUT` | `/api/contenido-tienda` | Publicar contenido e imagen *(solo ADMIN; multipart `file` opcional + `data`)* |
-| `POST` | `/api/productos` | Crear producto *(multipart: `file` + `data`)* |
-| `PUT` · `DELETE` | `/api/productos/{id}` | Editar o eliminar |
-| `GET` · `POST` · `PUT` · `DELETE` | `/api/marcas`, `/api/categorias` | Catálogos simples |
-| `GET` | `/api/productos/{id}/resenas` | Reseñas del producto y promedio de estrellas |
-| `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto)* |
-| `GET` | `/api/usuarios`, `/api/usuarios/clientes` | Usuarios y clientes |
-| `POST` | `/api/v1/ventas` | Registrar venta y descontar stock |
-| `GET` | `/api/v1/ventas/todas` | Todas las ventas |
-| `GET` | `/api/v1/ventas/{id}` | Venta con su detalle |
-| `DELETE` | `/api/v1/ventas/{id}` | Anular y devolver el stock |
+La columna **Acceso** dice quién puede llamar al endpoint (lo comprueba el servidor, no la
+pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
+
+### Sesión y seguridad
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `POST` | `/api/auth/login` | Iniciar sesión. ADMIN y ALMACENERO reciben un código por correo (2FA) | Público |
+| `POST` | `/api/auth/mfa/verificar` | Confirmar el código 2FA y abrir la sesión | Público |
+| `POST` | `/api/auth/mfa/reenviar` | Pedir otro código 2FA (una vez cada 60 s) | Público |
+| `POST` | `/api/auth/registro` | Registrar un cliente | Público |
+| `POST` | `/api/auth/registro/verificar` | Confirmar el registro con el código de 6 dígitos | Público |
+| `POST` | `/api/auth/registro/reenviar` | Reenviar el código del registro | Público |
+| `GET` | `/api/auth/csrf` | Token CSRF, que debe enviarse en las peticiones que modifican datos | Público |
+| `GET` | `/api/auth/verificar` | Datos de la sesión actual | Sesión |
+| `POST` | `/api/auth/logout` | Cerrar sesión | Sesión |
+
+### Catálogo y tienda
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros | Público |
+| `GET` | `/api/productos/{id}` | Un producto con todas sus tallas | Público |
+| `GET` | `/api/productos/mas-vendidos` | Los 8 productos más vendidos, según ventas reales | Público |
+| `POST` | `/api/productos` | Crear producto *(multipart: `file` + `data`)* | ADMIN, ALMACENERO |
+| `PUT` · `DELETE` | `/api/productos/{id}` | Editar o eliminar | ADMIN, ALMACENERO |
+| `GET` | `/api/marcas`, `/api/categorias` | Catálogos simples | Público |
+| `POST` · `PUT` · `DELETE` | `/api/marcas`, `/api/categorias` | Crear, editar o eliminar | ADMIN, ALMACENERO |
+| `GET` | `/api/contenido-tienda` | Contenido público del banner y la franja promocional | Público |
+| `PUT` | `/api/contenido-tienda` | Publicar contenido e imagen *(multipart `file` opcional + `data`)* | ADMIN |
+| `GET` | `/api/stock/eventos` | Eventos en tiempo real: avisa a las pantallas abiertas cuando cambia el stock | Público |
+| `GET` | `/api/productos/{id}/resenas` | Reseñas del producto y promedio de estrellas | Público |
+| `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto, solo compradores)* | Ver nota ⚠ |
+| `DELETE` | `/api/productos/{id}/resenas/{resenaId}` | Borrar una reseña *(el autor o ADMIN)* | Ver nota ⚠ |
+
+### Ventas
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `POST` | `/api/v1/ventas` | Registrar venta y descontar stock. Si quien la hace es CLIENTE, queda a su nombre | ADMIN, VENDEDOR, CLIENTE |
+| `GET` | `/api/v1/ventas/todas` | Todas las ventas | ADMIN, ALMACENERO, VENDEDOR |
+| `GET` | `/api/v1/ventas/pagina?page=&size=&q=&desde=&hasta=` | Ventas paginadas, con búsqueda por comprobante o cliente y rango de fechas (máximo 100 por página) | ADMIN, ALMACENERO, VENDEDOR |
+| `GET` | `/api/v1/ventas/reportes/resumen` | Indicadores del dashboard y de reportes | ADMIN, ALMACENERO, VENDEDOR |
+| `GET` | `/api/v1/ventas/usuario/{id}` | Pedidos de un usuario | Sesión (CLIENTE solo los suyos) |
+| `GET` | `/api/v1/ventas/{id}` | Venta con su detalle | ADMIN, ALMACENERO, VENDEDOR; CLIENTE solo las suyas |
+| `DELETE` | `/api/v1/ventas/{id}` | Anular y devolver el stock | ADMIN |
+
+### Usuarios
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `GET` | `/api/usuarios` | Listar todos los usuarios | ADMIN |
+| `GET` | `/api/usuarios/clientes` | Listar los clientes | ADMIN, VENDEDOR |
+| `POST` | `/api/usuarios` | Crear un usuario. El VENDEDOR solo puede crear clientes, sin acceso web | ADMIN, VENDEDOR |
+| `PUT` · `DELETE` | `/api/usuarios/{id}` | Editar (incluido el rol) o eliminar | ADMIN |
+
+### Monitoreo
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `GET` | `/actuator/health` | Estado del servicio (`UP` o `DOWN`); también `/actuator/health/liveness` y `/actuator/health/readiness` | Público |
+| `GET` | `/actuator/metrics` y `/actuator/metrics/{nombre}` | CPU, memoria, disco, conexiones a la base de datos y latencias. Por ejemplo `process.cpu.usage` | ADMIN |
+
+### Quién puede hacer qué
+
+Matriz de permisos por rol. Las reglas las aplica el servidor: por ruta en
+[`SecurityConfig`](proyecto-analisis/ProyectoTiendaDrop/src/main/java/com/dropStore/DropStore/config/SecurityConfig.java)
+y, para «solo lo suyo», dentro de los controladores. La pantalla únicamente oculta botones.
+Contrastada con ese código el 31 de octubre de 2026.
+
+| Acción | Sin sesión | CLIENTE | VENDEDOR | ALMACENERO | ADMIN |
+|---|:-:|:-:|:-:|:-:|:-:|
+| Ver catálogo, fichas, reseñas y banner | Sí | Sí | Sí | Sí | Sí |
+| Segundo factor (2FA) por correo al iniciar sesión | — | No | No | **Sí** | **Sí** |
+| Comprar en la tienda (carrito y pago) | No | Sí | Sí | No | Sí |
+| Ver una venta o sus pedidos | No | Solo los suyos | Sí | Sí | Sí |
+| Registrar ventas en el POS | No | No | Sí | No | Sí |
+| Ver todas las ventas, facturación y reportes | No | No | Sí | Sí | Sí |
+| Anular una venta | No | No | No | No | Sí |
+| Crear, editar y eliminar productos, marcas y categorías | No | No | No | Sí | Sí |
+| Ver y registrar clientes | No | No | Sí | No | Sí |
+| Crear usuarios con otro rol, cambiar roles y eliminar usuarios | No | No | No | No | Sí |
+| Editar el contenido del banner de la tienda | No | No | No | No | Sí |
+| Ver las métricas del servidor | No | No | No | No | Sí |
+
+**Principio de mínimo privilegio.** Cada rol solo recibe lo que necesita para su trabajo. Por
+ejemplo, el ALMACENERO ve ventas y reportes para controlar el inventario, pero no puede ver ni
+registrar clientes, y por eso la pestaña *Clientes* de Reportes no aparece en su pantalla.
+
+**⚠ Pendiente: reseñas.** El controlador está pensado para que opinen los compradores
+(RF10), pero la regla `POST` y `DELETE` sobre `/api/productos/**` de `SecurityConfig` exige
+ADMIN o ALMACENERO y también alcanza a `/api/productos/{id}/resenas`. Comprobado con una prueba
+de seguridad: un CLIENTE recibe **403** al publicar o borrar una reseña. Queda pendiente de
+corregir en un cambio aparte; hasta entonces las dos filas de reseñas de la tabla describen lo
+que el servidor hace hoy.
 
 ---
 
