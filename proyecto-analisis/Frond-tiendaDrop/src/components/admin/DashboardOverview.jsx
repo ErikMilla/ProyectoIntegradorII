@@ -3,11 +3,9 @@ import InventoryService from '../../services/inventory.service';
 import UserService from '../../services/user.service';
 import VentaService from '../../services/venta.service';
 import { mensajeDeError } from '../../services/api';
+import { UMBRAL_STOCK_BAJO, esStockBajo } from '../../utils/inventario';
 
 const soles = (valor) => `S/${Number(valor || 0).toFixed(2)}`;
-
-/** Una variante con 5 o menos unidades se considera stock bajo. */
-const UMBRAL_STOCK_BAJO = 5;
 
 /**
  * Pantalla de inicio del administrador: los numeros del negocio en vivo,
@@ -54,7 +52,7 @@ function DashboardOverview({ onNavigate }) {
   );
 
   const stockBajo = useMemo(
-    () => variantes.filter((variante) => variante.stock <= UMBRAL_STOCK_BAJO),
+    () => variantes.filter((variante) => esStockBajo(variante.stock)),
     [variantes],
   );
 

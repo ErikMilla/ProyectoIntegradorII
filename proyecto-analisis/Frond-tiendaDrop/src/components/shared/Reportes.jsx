@@ -3,12 +3,11 @@ import InventoryService from '../../services/inventory.service';
 import UserService from '../../services/user.service';
 import VentaService from '../../services/venta.service';
 import { agruparPorProducto } from '../../utils/productGrouping';
+import { esStockBajo } from '../../utils/inventario';
 import { mensajeDeError } from '../../services/api';
 
 const soles = (valor) => `S/${Number(valor || 0).toFixed(2)}`;
 const fechaCorta = (valor) => (valor ? new Date(valor).toLocaleDateString('es-PE') : '—');
-
-const STOCK_CRITICO = 5;
 
 /**
  * Reportes para la toma de decisiones del administrador.
@@ -216,7 +215,7 @@ function Reportes() {
                           <td><strong>{stock}</strong></td>
                           <td>
                             <span className="status-pill">
-                              {stock <= STOCK_CRITICO ? 'Stock bajo' : 'Disponible'}
+                              {esStockBajo(stock) ? 'Stock bajo' : 'Disponible'}
                             </span>
                           </td>
                         </tr>
