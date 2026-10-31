@@ -116,6 +116,8 @@ El cupón de demostración `DROP10` aplica un 10 % antes del IGV. El servidor
 valida el código y recalcula el comprobante, tanto en la tienda como en el POS.
 
 El estado del backend puede consultarse en `http://localhost:8081/actuator/health`.
+Las métricas del servidor (CPU, memoria, disco y conexiones a la base de datos) están en
+`/actuator/metrics`, y solo las ve un ADMIN con sesión iniciada.
 Las evidencias de cumplimiento y rendimiento están en `EVIDENCIAS_REQUISITOS.md`.
 
 ### Frontend
@@ -201,6 +203,17 @@ no se guarda nada.
 
 Si alguien escribe una de estas rutas sin permiso, el sistema lo devuelve a su propia
 pantalla de inicio.
+
+Módulos que ve cada rol dentro de su pantalla:
+
+| Rol | Módulos |
+|---|---|
+| ADMIN | Dashboard, Usuarios, Facturación, Inventario, Clientes, Punto de venta, Reportes, Contenido y Configuración |
+| ALMACENERO | Alertas de stock, Inventario y Reportes (sin la pestaña Clientes) |
+| VENDEDOR | Punto de venta, Clientes e Historial de ventas |
+| CLIENTE | La tienda: catálogo, carrito, pago y *Mis pedidos* (`/mis-pedidos`) |
+
+Qué puede hacer cada rol en el servidor está en la matriz de la sección 7.
 
 El administrador dispone de la sección **Contenido** dentro de su intranet. Desde allí puede
 cambiar la imagen, los textos, el botón, la franja promocional, el enfoque y la altura del
