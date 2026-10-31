@@ -12,6 +12,7 @@ public class producto {
     private String foto;
     private double precio_compra;
     private double prcio_venta;
+    @Column(length = 1000)
     private String descripcion;
     @ManyToOne
     @JoinColumn(name = "categoria_id")

@@ -43,7 +43,13 @@ public class ProductoController {
     private ReporteService reporteService;
     @Autowired
     private ApplicationEventPublisher eventos;
-    private final ObjectMapper objectMapper = new ObjectMapper();   
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final int MAX_DESCRIPCION = 1000;
+
+    private static boolean descripcionDemasiadoLarga(ProductoRegistroDTO producto) {
+        return producto.getDescripcion() != null && producto.getDescripcion().length() > MAX_DESCRIPCION;
+    }
+
     @PostMapping
     @Transactional
     public ResponseEntity<?> registrarProducto(
@@ -60,6 +66,10 @@ public class ProductoController {
             return ResponseEntity.badRequest().body("Los datos del producto son obligatorios.");
         }
         ProductoRegistroDTO productoDto = dtoContenedor.getProducto();
+        if (descripcionDemasiadoLarga(productoDto)) {
+            return ResponseEntity.badRequest()
+                    .body("La descripción no puede superar los " + MAX_DESCRIPCION + " caracteres.");
+        }
         if (productoDto.getCategoriaId() == null) {
             return ResponseEntity.badRequest().body("Debe especificar una categoría.");
         }
@@ -199,6 +209,10 @@ public class ProductoController {
         producto productoExistente = productoOpt.get();
         ProductoRegistroDTO productoDto = dtoContenedor.getProducto();
         List<DetalleRegistroDTO> variantesDto = dtoContenedor.getVariantes();
+        if (descripcionDemasiadoLarga(productoDto)) {
+            return ResponseEntity.badRequest()
+                    .body("La descripción no puede superar los " + MAX_DESCRIPCION + " caracteres.");
+        }
         if (productoDto.getCategoriaId() == null) {
             return ResponseEntity.badRequest().body("La categoría es obligatoria.");
         }

@@ -373,7 +373,7 @@ function GestionInventario() {
               <label className="full-field">
                 Descripción
                 <textarea
-                  required rows="2"
+                  required rows="2" maxLength={1000}
                   value={formulario.descripcion}
                   onChange={(evento) => setFormulario({ ...formulario, descripcion: evento.target.value })}
                 />
