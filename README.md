@@ -275,6 +275,39 @@ pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
 | `GET` | `/actuator/health` | Estado del servicio (`UP` o `DOWN`); también `/actuator/health/liveness` y `/actuator/health/readiness` | Público |
 | `GET` | `/actuator/metrics` y `/actuator/metrics/{nombre}` | CPU, memoria, disco, conexiones a la base de datos y latencias. Por ejemplo `process.cpu.usage` | ADMIN |
 
+### Quién puede hacer qué
+
+Matriz de permisos por rol. Las reglas las aplica el servidor: por ruta en
+[`SecurityConfig`](proyecto-analisis/ProyectoTiendaDrop/src/main/java/com/dropStore/DropStore/config/SecurityConfig.java)
+y, para «solo lo suyo», dentro de los controladores. La pantalla únicamente oculta botones.
+Contrastada con ese código el 31 de octubre de 2026.
+
+| Acción | Sin sesión | CLIENTE | VENDEDOR | ALMACENERO | ADMIN |
+|---|:-:|:-:|:-:|:-:|:-:|
+| Ver catálogo, fichas, reseñas y banner | Sí | Sí | Sí | Sí | Sí |
+| Segundo factor (2FA) por correo al iniciar sesión | — | No | No | **Sí** | **Sí** |
+| Comprar en la tienda (carrito y pago) | No | Sí | Sí | No | Sí |
+| Ver una venta o sus pedidos | No | Solo los suyos | Sí | Sí | Sí |
+| Registrar ventas en el POS | No | No | Sí | No | Sí |
+| Ver todas las ventas, facturación y reportes | No | No | Sí | Sí | Sí |
+| Anular una venta | No | No | No | No | Sí |
+| Crear, editar y eliminar productos, marcas y categorías | No | No | No | Sí | Sí |
+| Ver y registrar clientes | No | No | Sí | No | Sí |
+| Crear usuarios con otro rol, cambiar roles y eliminar usuarios | No | No | No | No | Sí |
+| Editar el contenido del banner de la tienda | No | No | No | No | Sí |
+| Ver las métricas del servidor | No | No | No | No | Sí |
+
+**Principio de mínimo privilegio.** Cada rol solo recibe lo que necesita para su trabajo. Por
+ejemplo, el ALMACENERO ve ventas y reportes para controlar el inventario, pero no puede ver ni
+registrar clientes, y por eso la pestaña *Clientes* de Reportes no aparece en su pantalla.
+
+**⚠ Pendiente: reseñas.** El controlador está pensado para que opinen los compradores
+(RF10), pero la regla `POST` y `DELETE` sobre `/api/productos/**` de `SecurityConfig` exige
+ADMIN o ALMACENERO y también alcanza a `/api/productos/{id}/resenas`. Comprobado con una prueba
+de seguridad: un CLIENTE recibe **403** al publicar o borrar una reseña. Queda pendiente de
+corregir en un cambio aparte; hasta entonces las dos filas de reseñas de la tabla describen lo
+que el servidor hace hoy.
+
 ---
 
 ## 8. Pruebas
