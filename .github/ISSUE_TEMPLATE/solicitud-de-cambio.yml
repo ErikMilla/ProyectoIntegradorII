@@ -1,0 +1,59 @@
+name: Solicitud de cambio
+description: Pedir un cambio al sistema (control de cambios)
+title: "[Cambio] "
+labels: ["cambio", "pendiente"]
+body:
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de cambio
+      options:
+        - Infraestructura
+        - Aplicaciones
+        - Documentación
+        - Calendario
+    validations:
+      required: true
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Qué se pide
+      description: Describe el cambio en pocas frases.
+    validations:
+      required: true
+  - type: textarea
+    id: motivo
+    attributes:
+      label: Por qué se pide
+      description: Problema o beneficio que justifica el cambio.
+    validations:
+      required: true
+  - type: dropdown
+    id: riesgo
+    attributes:
+      label: Riesgo
+      options:
+        - Bajo
+        - Medio
+        - Alto
+    validations:
+      required: true
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto
+      description: Qué módulos, roles o usuarios afecta.
+    validations:
+      required: true
+  - type: textarea
+    id: reversa
+    attributes:
+      label: Plan de reversa
+      description: Cómo se deshace si sale mal.
+    validations:
+      required: true
+  - type: input
+    id: fecha
+    attributes:
+      label: Fecha propuesta de despliegue
+      description: Debe caer en una ventana permitida (ver docs/CALENDARIO_CAMBIOS.md).
