@@ -212,24 +212,68 @@ banner de inicio. Se recomiendan imágenes horizontales de 1920 × 900 px en JPG
 
 Base: `http://localhost:8081`
 
-| Método | Ruta | Qué hace |
-|---|---|---|
-| `POST` | `/api/auth/login` | Iniciar sesión |
-| `POST` | `/api/auth/registro` | Registrar un cliente |
-| `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros |
-| `GET` | `/api/productos/{id}` | Un producto con todas sus tallas |
-| `GET` | `/api/contenido-tienda` | Contenido público del banner y la franja promocional |
-| `PUT` | `/api/contenido-tienda` | Publicar contenido e imagen *(solo ADMIN; multipart `file` opcional + `data`)* |
-| `POST` | `/api/productos` | Crear producto *(multipart: `file` + `data`)* |
-| `PUT` · `DELETE` | `/api/productos/{id}` | Editar o eliminar |
-| `GET` · `POST` · `PUT` · `DELETE` | `/api/marcas`, `/api/categorias` | Catálogos simples |
-| `GET` | `/api/productos/{id}/resenas` | Reseñas del producto y promedio de estrellas |
-| `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto)* |
-| `GET` | `/api/usuarios`, `/api/usuarios/clientes` | Usuarios y clientes |
-| `POST` | `/api/v1/ventas` | Registrar venta y descontar stock |
-| `GET` | `/api/v1/ventas/todas` | Todas las ventas |
-| `GET` | `/api/v1/ventas/{id}` | Venta con su detalle |
-| `DELETE` | `/api/v1/ventas/{id}` | Anular y devolver el stock |
+La columna **Acceso** dice quién puede llamar al endpoint (lo comprueba el servidor, no la
+pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
+
+### Sesión y seguridad
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `POST` | `/api/auth/login` | Iniciar sesión. ADMIN y ALMACENERO reciben un código por correo (2FA) | Público |
+| `POST` | `/api/auth/mfa/verificar` | Confirmar el código 2FA y abrir la sesión | Público |
+| `POST` | `/api/auth/mfa/reenviar` | Pedir otro código 2FA (una vez cada 60 s) | Público |
+| `POST` | `/api/auth/registro` | Registrar un cliente | Público |
+| `POST` | `/api/auth/registro/verificar` | Confirmar el registro con el código de 6 dígitos | Público |
+| `POST` | `/api/auth/registro/reenviar` | Reenviar el código del registro | Público |
+| `GET` | `/api/auth/csrf` | Token CSRF, que debe enviarse en las peticiones que modifican datos | Público |
+| `GET` | `/api/auth/verificar` | Datos de la sesión actual | Sesión |
+| `POST` | `/api/auth/logout` | Cerrar sesión | Sesión |
+
+### Catálogo y tienda
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros | Público |
+| `GET` | `/api/productos/{id}` | Un producto con todas sus tallas | Público |
+| `GET` | `/api/productos/mas-vendidos` | Los 8 productos más vendidos, según ventas reales | Público |
+| `POST` | `/api/productos` | Crear producto *(multipart: `file` + `data`)* | ADMIN, ALMACENERO |
+| `PUT` · `DELETE` | `/api/productos/{id}` | Editar o eliminar | ADMIN, ALMACENERO |
+| `GET` | `/api/marcas`, `/api/categorias` | Catálogos simples | Público |
+| `POST` · `PUT` · `DELETE` | `/api/marcas`, `/api/categorias` | Crear, editar o eliminar | ADMIN, ALMACENERO |
+| `GET` | `/api/contenido-tienda` | Contenido público del banner y la franja promocional | Público |
+| `PUT` | `/api/contenido-tienda` | Publicar contenido e imagen *(multipart `file` opcional + `data`)* | ADMIN |
+| `GET` | `/api/stock/eventos` | Eventos en tiempo real: avisa a las pantallas abiertas cuando cambia el stock | Público |
+| `GET` | `/api/productos/{id}/resenas` | Reseñas del producto y promedio de estrellas | Público |
+| `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto, solo compradores)* | Ver nota ⚠ |
+| `DELETE` | `/api/productos/{id}/resenas/{resenaId}` | Borrar una reseña *(el autor o ADMIN)* | Ver nota ⚠ |
+
+### Ventas
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `POST` | `/api/v1/ventas` | Registrar venta y descontar stock. Si quien la hace es CLIENTE, queda a su nombre | ADMIN, VENDEDOR, CLIENTE |
+| `GET` | `/api/v1/ventas/todas` | Todas las ventas | ADMIN, ALMACENERO, VENDEDOR |
+| `GET` | `/api/v1/ventas/pagina?page=&size=&q=&desde=&hasta=` | Ventas paginadas, con búsqueda por comprobante o cliente y rango de fechas (máximo 100 por página) | ADMIN, ALMACENERO, VENDEDOR |
+| `GET` | `/api/v1/ventas/reportes/resumen` | Indicadores del dashboard y de reportes | ADMIN, ALMACENERO, VENDEDOR |
+| `GET` | `/api/v1/ventas/usuario/{id}` | Pedidos de un usuario | Sesión (CLIENTE solo los suyos) |
+| `GET` | `/api/v1/ventas/{id}` | Venta con su detalle | ADMIN, ALMACENERO, VENDEDOR; CLIENTE solo las suyas |
+| `DELETE` | `/api/v1/ventas/{id}` | Anular y devolver el stock | ADMIN |
+
+### Usuarios
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `GET` | `/api/usuarios` | Listar todos los usuarios | ADMIN |
+| `GET` | `/api/usuarios/clientes` | Listar los clientes | ADMIN, VENDEDOR |
+| `POST` | `/api/usuarios` | Crear un usuario. El VENDEDOR solo puede crear clientes, sin acceso web | ADMIN, VENDEDOR |
+| `PUT` · `DELETE` | `/api/usuarios/{id}` | Editar (incluido el rol) o eliminar | ADMIN |
+
+### Monitoreo
+
+| Método | Ruta | Qué hace | Acceso |
+|---|---|---|---|
+| `GET` | `/actuator/health` | Estado del servicio (`UP` o `DOWN`); también `/actuator/health/liveness` y `/actuator/health/readiness` | Público |
+| `GET` | `/actuator/metrics` y `/actuator/metrics/{nombre}` | CPU, memoria, disco, conexiones a la base de datos y latencias. Por ejemplo `process.cpu.usage` | ADMIN |
 
 ---
 
