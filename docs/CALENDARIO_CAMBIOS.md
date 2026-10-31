@@ -32,3 +32,8 @@ No se despliegan cambios normales en estos periodos:
 3. Todo despliegue debe tener plan de reversa y el CI en verde.
 4. Si un cambio falla, se revierte primero y se investiga después.
 5. Las emergencias se registran igual: issue, PR y revisión, aunque sea después del hecho.
+6. **Alcance del calendario.** Rige los **despliegues al entorno publicado** (un servidor al que
+   acceden los clientes). Mientras el sistema funcione solo en el equipo local, integrar un
+   pull request a `main` no se considera un despliegue y puede hacerse cualquier día, siempre
+   con revisión y CI en verde. El día que exista un entorno publicado, cada despliegue a él
+   sigue las ventanas y los periodos congelados de este documento.
