@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import InventoryService from '../../services/inventory.service';
 import { mensajeDeError } from '../../services/api';
-
-/** Una variante con 5 o menos unidades se considera stock bajo. */
-const UMBRAL_STOCK_BAJO = 5;
+import { UMBRAL_STOCK_BAJO, esStockBajo } from '../../utils/inventario';
 
 /**
  * Pantalla de entrada del almacenero: qué tallas se están por acabar.
@@ -26,7 +24,7 @@ function AlertasStock({ onNavigate }) {
 
   const stockBajo = useMemo(
     () => [...variantes]
-      .filter((variante) => variante.stock <= UMBRAL_STOCK_BAJO)
+      .filter((variante) => esStockBajo(variante.stock))
       .sort((a, b) => a.stock - b.stock),
     [variantes],
   );
