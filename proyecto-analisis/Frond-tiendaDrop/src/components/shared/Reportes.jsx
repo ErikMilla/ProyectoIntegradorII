@@ -25,25 +25,33 @@ function Reportes() {
   const [cargando, setCargando] = useState(true);
   const [mensaje, setMensaje] = useState('');
   const [resumen, setResumen] = useState(null);
+  const [verClientes, setVerClientes] = useState(true);
 
   useEffect(() => {
     const cargar = async () => {
-      try {
-        const [resVentas, resProductos, resClientes, resResumen] = await Promise.all([
-          VentaService.getAllVentas(),
-          InventoryService.getAllProductos(),
-          UserService.getClientes(),
-          VentaService.getResumenReportes(),
-        ]);
-        setVentas(resVentas.data || []);
-        setProductos(agruparPorProducto(resProductos.data));
-        setClientes(resClientes.data || []);
-        setResumen(resResumen.data || {});
-      } catch (error) {
-        setMensaje(mensajeDeError(error, 'No se pudieron cargar los reportes.'));
-      } finally {
-        setCargando(false);
+      // Cada consulta falla por separado: el almacenero no tiene permiso para
+      // listar clientes y eso no debe dejar sin datos al resto del reporte.
+      const [resVentas, resProductos, resClientes, resResumen] = await Promise.allSettled([
+        VentaService.getAllVentas(),
+        InventoryService.getAllProductos(),
+        UserService.getClientes(),
+        VentaService.getResumenReportes(),
+      ]);
+
+      if (resVentas.status === 'fulfilled') setVentas(resVentas.value.data || []);
+      if (resProductos.status === 'fulfilled') setProductos(agruparPorProducto(resProductos.value.data));
+      if (resResumen.status === 'fulfilled') setResumen(resResumen.value.data || {});
+      if (resClientes.status === 'fulfilled') {
+        setClientes(resClientes.value.data || []);
+      } else {
+        setVerClientes(false);
       }
+
+      const obligatoria = [resVentas, resProductos, resResumen].find((r) => r.status === 'rejected');
+      if (obligatoria) {
+        setMensaje(mensajeDeError(obligatoria.reason, 'No se pudieron cargar los reportes.'));
+      }
+      setCargando(false);
     };
     cargar();
   }, []);
@@ -88,7 +96,9 @@ function Reportes() {
       <nav className="section-tabs" aria-label="Tipos de reporte">
         <button className={pestana === 'ventas' ? 'active' : ''} onClick={() => setPestana('ventas')}>Ventas</button>
         <button className={pestana === 'inventario' ? 'active' : ''} onClick={() => setPestana('inventario')}>Inventario</button>
-        <button className={pestana === 'clientes' ? 'active' : ''} onClick={() => setPestana('clientes')}>Clientes</button>
+        {verClientes && (
+          <button className={pestana === 'clientes' ? 'active' : ''} onClick={() => setPestana('clientes')}>Clientes</button>
+        )}
       </nav>
 
       {mensaje && <div className="admin-notice" role="status">{mensaje}</div>}
@@ -220,7 +230,7 @@ function Reportes() {
         </>
       )}
 
-      {pestana === 'clientes' && (
+      {pestana === 'clientes' && verClientes && (
         <div className="data-card">
           <header className="card-heading">
             <h2>Cartera de clientes</h2>
