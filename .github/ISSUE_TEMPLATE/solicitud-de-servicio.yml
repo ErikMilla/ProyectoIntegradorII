@@ -1,0 +1,42 @@
+name: Solicitud de servicio
+description: Pedir acceso a un módulo o información (no cambia el sistema)
+title: "[Servicio] "
+labels: ["solicitud"]
+body:
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de solicitud
+      options:
+        - Acceso
+        - Información
+    validations:
+      required: true
+  - type: dropdown
+    id: rol
+    attributes:
+      label: Rol de quien solicita
+      options:
+        - ADMIN
+        - ALMACENERO
+        - VENDEDOR
+        - CLIENTE
+    validations:
+      required: true
+  - type: textarea
+    id: pedido
+    attributes:
+      label: Qué necesita
+    validations:
+      required: true
+  - type: input
+    id: responsable
+    attributes:
+      label: Responsable de atenderla
+    validations:
+      required: true
+  - type: input
+    id: meta
+    attributes:
+      label: Tiempo meta de atención
+      description: Por ejemplo, 4 horas o 1 día hábil.
