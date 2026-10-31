@@ -1,0 +1,72 @@
+name: CI
+
+# Integración continua: commit -> compilación -> pruebas automáticas.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Si llega un commit nuevo a la misma rama, se cancela la ejecución anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (compilar y probar)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proyecto-analisis/ProyectoTiendaDrop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # mvnw se guardó en el repositorio sin permiso de ejecución.
+      - name: Dar permiso de ejecución a mvnw
+        run: chmod +x mvnw
+
+      # Compila, corre las pruebas (base H2 en memoria) y empaqueta.
+      - name: Compilar y ejecutar pruebas
+        run: ./mvnw -B verify
+
+      - name: Guardar reportes de pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-pruebas-backend
+          path: proyecto-analisis/ProyectoTiendaDrop/target/surefire-reports
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend (lint y build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proyecto-analisis/Frond-tiendaDrop
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: proyecto-analisis/Frond-tiendaDrop/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Revisar estilo (lint)
+        run: npm run lint
+
+      - name: Compilar para producción
+        run: npm run build
