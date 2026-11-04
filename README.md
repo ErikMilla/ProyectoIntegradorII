@@ -336,8 +336,16 @@ contraseña de base de datos.
 ```bash
 cd proyecto-analisis/Frond-tiendaDrop
 npm run lint     # revisión de estilo
+npm test         # pruebas automáticas (Vitest)
 npm run build    # compilación de producción
 ```
+
+Cada push y cada pull request ejecutan estas mismas comprobaciones en GitHub Actions
+(`.github/workflows/ci.yml`).
+
+Para medir el rendimiento y la capacidad (k6 y registro de CPU, memoria y disco) sigue el
+[plan de pruebas de capacidad](docs/PLAN_PRUEBAS_CAPACIDAD.md); los scripts están en
+`pruebas/`.
 
 ---
 
