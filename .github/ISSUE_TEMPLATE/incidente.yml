@@ -1,0 +1,84 @@
+name: Incidente
+description: Reportar una falla o degradación del servicio en operación
+title: "[INC] "
+labels: ["incidente"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Un incidente es algo que ya está fallando o degradado. Para pedir una mejora usa
+        *Solicitud de cambio*. Después de crearlo, agrega la etiqueta de prioridad
+        (`P1-Critica`, `P2-Alta`, `P3-Media` o `P4-Baja`) y asigna un responsable.
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción
+      description: Qué está fallando y desde cuándo.
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducir
+      description: Pasos numerados, con el rol y la URL o endpoint.
+      placeholder: |
+        1. Iniciar sesión como ...
+        2. Ir a ...
+        3. Resultado obtenido: ...
+    validations:
+      required: true
+  - type: dropdown
+    id: rol
+    attributes:
+      label: Rol afectado
+      multiple: true
+      options:
+        - Visitante
+        - CLIENTE
+        - VENDEDOR
+        - ALMACENERO
+        - ADMIN
+        - Todos / operación del servicio
+    validations:
+      required: true
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia
+      description: Capturas, códigos HTTP, líneas de log o archivo y línea del código. Sin contraseñas ni datos personales.
+    validations:
+      required: true
+  - type: dropdown
+    id: impacto
+    attributes:
+      label: Impacto
+      description: Cuánto del servicio o de los usuarios se ve afectado.
+      options:
+        - Alto (servicio caído o función esencial bloqueada)
+        - Medio (una función importante falla, hay alternativa)
+        - Bajo (molestia menor o documentación)
+    validations:
+      required: true
+  - type: dropdown
+    id: urgencia
+    attributes:
+      label: Urgencia
+      description: Qué tan rápido se necesita la solución.
+      options:
+        - Alta (hay que atenderlo hoy)
+        - Media (en esta semana)
+        - Baja (puede esperar a la próxima ventana de cambios)
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      description: Combinación de impacto y urgencia. Debe coincidir con la etiqueta P1–P4.
+      options:
+        - P1-Critica (impacto alto + urgencia alta)
+        - P2-Alta
+        - P3-Media
+        - P4-Baja (impacto bajo + urgencia baja)
+    validations:
+      required: true
