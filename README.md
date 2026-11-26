@@ -96,8 +96,10 @@ Se cambian con variables de entorno, sin editar código.
 | `DB_PASSWORD` | *(vacío)* | Contraseña de MySQL |
 | `SERVER_PORT` | `8081` | Puerto del backend |
 | `FRONTEND_ORIGIN` | `http://localhost:5173` | Origen autorizado para CORS |
+| `SESSION_COOKIE_SECURE` | `false` | Enviar la cookie de sesión solo por HTTPS. Ponla en `true` en producción |
 | `DROPSTORE_SEED` | `false` | Cargar datos de ejemplo de forma opcional |
 | `DROPSTORE_DEMO_PASSWORD` | *(vacío)* | Contraseña segura para las cuentas de muestra |
+| `DROPSTORE_ADMIN_EMAIL` | `admin@dropstore.local` | Correo de la cuenta administradora que crea la carga de ejemplo |
 | `SQL_LOG` | `false` | Mostrar las consultas SQL en consola |
 | `MFA_MAIL_ENABLED` | `false` | Enviar los códigos MFA mediante el servidor SMTP configurado |
 | `MFA_DEV_CODE_ENABLED` | `false` | Mostrar el código solo para pruebas locales |
