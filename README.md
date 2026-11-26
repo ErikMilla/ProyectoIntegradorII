@@ -255,7 +255,7 @@ pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
 | `POST` · `PUT` · `DELETE` | `/api/marcas`, `/api/categorias` | Crear, editar o eliminar | ADMIN, ALMACENERO |
 | `GET` | `/api/contenido-tienda` | Contenido público del banner y la franja promocional | Público |
 | `PUT` | `/api/contenido-tienda` | Publicar contenido e imagen *(multipart `file` opcional + `data`)* | ADMIN |
-| `GET` | `/api/stock/eventos` | Eventos en tiempo real: avisa a las pantallas abiertas cuando cambia el stock | Público |
+| `GET` | `/api/stock/eventos` | Eventos en tiempo real: avisa a las pantallas abiertas cuando cambia el stock *(el navegador solo la mantiene abierta en la pestaña visible; al volver, la pantalla recarga)* | Público |
 | `GET` | `/api/productos/{id}/resenas` | Reseñas del producto y promedio de estrellas | Público |
 | `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto, solo compradores)* | Ver nota ⚠ |
 | `DELETE` | `/api/productos/{id}/resenas/{resenaId}` | Borrar una reseña *(el autor o ADMIN)* | Ver nota ⚠ |
