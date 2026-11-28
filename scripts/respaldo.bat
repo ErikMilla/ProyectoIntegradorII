@@ -9,7 +9,7 @@ REM  - La contrasena la pide mysqldump (-p): no se guarda en este archivo.
 REM  - Registro: C:\respaldos\respaldo_AAAAMMDD.log
 REM
 REM  Uso:   scripts\respaldo.bat                  (usuario root)
-REM         set DB_USER=otro_usuario ^& scripts\respaldo.bat
+REM         set BACKUP_DB_USER=otro_usuario ^& scripts\respaldo.bat
 REM
 REM  Objetivo de continuidad: RPO 24 h (un respaldo diario, por ejemplo con el
 REM  Programador de tareas de Windows). Restauracion de prueba:
@@ -20,7 +20,9 @@ REM ===========================================================================
 set "MYSQL_BIN=C:\Program Files\MySQL\MySQL Server 9.4\bin"
 set "BASE=bd_tiendadrop"
 set "DESTINO=C:\respaldos"
-if "%DB_USER%"=="" (set "USUARIO=root") else (set "USUARIO=%DB_USER%")
+REM Usuario administrativo, distinto del de la aplicacion (DB_USER=dropstore_app no
+REM puede crear bases ni leer triggers). Ver README, seccion 4.
+if "%BACKUP_DB_USER%"=="" (set "USUARIO=root") else (set "USUARIO=%BACKUP_DB_USER%")
 
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do set "FECHA=%%i"
 set "ARCHIVO=%DESTINO%\%BASE%_%FECHA%.sql"

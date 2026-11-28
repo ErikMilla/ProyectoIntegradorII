@@ -22,10 +22,21 @@ Maven **no** hace falta instalarlo: el proyecto trae su propio wrapper (`mvnw`).
 
 ## 2. Arrancar el proyecto (primera vez)
 
-### Paso 1 — Enciende MySQL
+### Paso 1 — Enciende MySQL y crea el usuario de la aplicación
 
-Solo tiene que estar corriendo. **No hace falta crear la base de datos**: el backend la crea
-sola la primera vez, junto con todas sus tablas.
+El backend **no** se conecta como `root`: usa `dropstore_app`, que solo tiene permisos sobre
+`bd_tiendadrop` (mínimo privilegio, INC02). Créalo una sola vez entrando a MySQL como `root`
+(Workbench o `mysql -u root -p`) y cambia la clave de ejemplo por una tuya:
+
+```sql
+CREATE DATABASE IF NOT EXISTS bd_tiendadrop CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE USER IF NOT EXISTS 'dropstore_app'@'localhost' IDENTIFIED BY 'cambia_esta_clave';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES
+  ON bd_tiendadrop.* TO 'dropstore_app'@'localhost';
+```
+
+`CREATE`, `ALTER`, `INDEX` y `REFERENCES` hacen falta porque Hibernate (`ddl-auto=update`)
+crea y actualiza las tablas al arrancar. Las tablas no hace falta crearlas a mano.
 
 ### Paso 2 — Arranca el backend
 
@@ -33,16 +44,19 @@ sola la primera vez, junto con todas sus tablas.
 cd proyecto-analisis/ProyectoTiendaDrop
 
 # Windows (PowerShell)
-$env:DB_PASSWORD="tu_clave_de_mysql"; .\mvnw.cmd spring-boot:run
+$env:DB_PASSWORD="clave_de_dropstore_app"; .\mvnw.cmd spring-boot:run
 
 # Windows (Git Bash) / Linux / macOS
-DB_PASSWORD="tu_clave_de_mysql" ./mvnw spring-boot:run
+DB_PASSWORD="clave_de_dropstore_app" ./mvnw spring-boot:run
 ```
+
+Para no escribir la clave cada vez ni dejarla en el historial de la terminal, guárdala una
+vez como variable de usuario (ver *Credenciales de la base de datos* en la sección 4).
 
 Queda escuchando en **http://localhost:8081**.
 
-Si tu MySQL no usa el usuario `root` o no está en el puerto 3306, revisa la tabla de
-variables en la sección 4.
+Si tu MySQL no está en `localhost:3306` o usas otro usuario, revisa la tabla de variables en
+la sección 4.
 
 ### Paso 3 — Arranca el frontend
 
@@ -92,8 +106,8 @@ Se cambian con variables de entorno, sin editar código.
 | `DB_HOST` | `localhost` | Servidor de MySQL |
 | `DB_PORT` | `3306` | Puerto de MySQL |
 | `DB_NAME` | `bd_tiendadrop` | Nombre de la base |
-| `DB_USER` | `root` | Usuario de MySQL |
-| `DB_PASSWORD` | *(vacío)* | Contraseña de MySQL |
+| `DB_USER` | `dropstore_app` | Usuario de MySQL de la aplicación, con permisos solo sobre `bd_tiendadrop` (sección 2, paso 1). No uses `root` |
+| `DB_PASSWORD` | *(vacío)* | Contraseña de `DB_USER` |
 | `SERVER_PORT` | `8081` | Puerto del backend |
 | `FRONTEND_ORIGIN` | `http://localhost:5173` | Origen autorizado para CORS |
 | `SESSION_COOKIE_SECURE` | `false` | Enviar la cookie de sesión solo por HTTPS. Ponla en `true` en producción |
@@ -116,6 +130,31 @@ y no pueden solicitarse nuevamente durante sesenta segundos.
 
 El cupón de demostración `DROP10` aplica un 10 % antes del IGV. El servidor
 valida el código y recalcula el comprobante, tanto en la tienda como en el POS.
+
+#### Credenciales de la base de datos
+
+En el equipo donde corre la tienda, guarda `DB_USER` y `DB_PASSWORD` como variables de usuario
+de Windows. Desde PowerShell, la clave se pide sin mostrarla en pantalla y no queda en el
+historial:
+
+```powershell
+[Environment]::SetEnvironmentVariable('DB_USER', 'dropstore_app', 'User')
+$clave = Read-Host 'Clave de dropstore_app' -AsSecureString
+[Environment]::SetEnvironmentVariable('DB_PASSWORD',
+    [Net.NetworkCredential]::new('', $clave).Password, 'User')
+Remove-Variable clave
+```
+
+Cierra y vuelve a abrir la terminal (o VS Code) para que el backend las vea.
+
+Si existe `ProyectoTiendaDrop/secrets.properties` (Git lo ignora), **sus valores mandan sobre
+las variables**: una línea `spring.datasource.password=` ahí deja sin efecto `DB_PASSWORD`.
+Bórrala, o guarda allí `spring.datasource.username` y `spring.datasource.password`, pero no las
+dos cosas a la vez.
+
+Los scripts de respaldo y restauración (`scripts/`) son tareas de administración: usan
+`BACKUP_DB_USER` (por defecto `root`) y no `DB_USER`, porque `dropstore_app` no puede crear
+bases ni leer los triggers.
 
 El estado del backend puede consultarse en `http://localhost:8081/actuator/health`.
 Las métricas del servidor (CPU, memoria, disco y conexiones a la base de datos) están en
@@ -353,9 +392,10 @@ Para medir el rendimiento y la capacidad (k6 y registro de CPU, memoria y disco)
 
 ## 9. Problemas frecuentes
 
-**`Access denied for user 'root'@'localhost'`**
-La variable `DB_PASSWORD` no coincide con tu MySQL. Arranca así:
-`DB_PASSWORD="tu_clave" ./mvnw spring-boot:run`
+**`Access denied for user 'dropstore_app'@'localhost'`**
+Falta crear el usuario (sección 2, paso 1) o `DB_PASSWORD` no coincide con su clave. Revisa
+también que `secrets.properties` no tenga otra `spring.datasource.password`, porque esa manda.
+Arranca así: `DB_PASSWORD="clave_de_dropstore_app" ./mvnw spring-boot:run`
 
 **El catálogo sale vacío y la consola del navegador muestra errores de red**
 El backend no está corriendo, o está en otro puerto. Comprueba con
