@@ -70,6 +70,11 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/metrics", "/actuator/metrics/**").hasRole("ADMIN")
                 // Catalogo publico: el cliente navega sin iniciar sesion.
                 .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/marcas/**", "/api/categorias/**").permitAll()
+                // Reseñas (RF10, INC01): van antes de las reglas de /api/productos/** para que
+                // estas no las alcancen. ResenaController exige además la compra previa y
+                // solo deja borrar al autor o a ADMIN.
+                .requestMatchers(HttpMethod.POST, "/api/productos/*/resenas").hasRole("CLIENTE")
+                .requestMatchers(HttpMethod.DELETE, "/api/productos/*/resenas/*").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/productos/**", "/api/marcas/**", "/api/categorias/**")
                     .hasAnyRole("ADMIN", "ALMACENERO")
                 .requestMatchers(HttpMethod.PUT, "/api/productos/**", "/api/marcas/**", "/api/categorias/**")

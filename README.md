@@ -259,8 +259,8 @@ pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
 | `PUT` | `/api/contenido-tienda` | Publicar contenido e imagen *(multipart `file` opcional + `data`)* | ADMIN |
 | `GET` | `/api/stock/eventos` | Eventos en tiempo real: avisa a las pantallas abiertas cuando cambia el stock *(el navegador solo la mantiene abierta en la pestaña visible; al volver, la pantalla recarga)* | Público |
 | `GET` | `/api/productos/{id}/resenas` | Reseñas del producto y promedio de estrellas | Público |
-| `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto, solo compradores)* | Ver nota ⚠ |
-| `DELETE` | `/api/productos/{id}/resenas/{resenaId}` | Borrar una reseña *(el autor o ADMIN)* | Ver nota ⚠ |
+| `POST` | `/api/productos/{id}/resenas` | Publicar reseña *(una por cliente y producto, solo compradores)* | CLIENTE |
+| `DELETE` | `/api/productos/{id}/resenas/{resenaId}` | Borrar una reseña *(el autor o ADMIN)* | Con sesión; el controlador solo deja al autor o a ADMIN |
 
 ### Ventas
 
@@ -306,6 +306,8 @@ Contrastada con ese código el 31 de octubre de 2026.
 | Registrar ventas en el POS | No | No | Sí | No | Sí |
 | Ver todas las ventas, facturación y reportes | No | No | Sí | Sí | Sí |
 | Anular una venta | No | No | No | No | Sí |
+| Publicar una reseña de un producto comprado | No | Sí | No | No | No |
+| Borrar una reseña | No | Solo las suyas | No | No | Sí |
 | Crear, editar y eliminar productos, marcas y categorías | No | No | No | Sí | Sí |
 | Ver y registrar clientes | No | No | Sí | No | Sí |
 | Crear usuarios con otro rol, cambiar roles y eliminar usuarios | No | No | No | No | Sí |
@@ -316,12 +318,9 @@ Contrastada con ese código el 31 de octubre de 2026.
 ejemplo, el ALMACENERO ve ventas y reportes para controlar el inventario, pero no puede ver ni
 registrar clientes, y por eso la pestaña *Clientes* de Reportes no aparece en su pantalla.
 
-**⚠ Pendiente: reseñas.** El controlador está pensado para que opinen los compradores
-(RF10), pero la regla `POST` y `DELETE` sobre `/api/productos/**` de `SecurityConfig` exige
-ADMIN o ALMACENERO y también alcanza a `/api/productos/{id}/resenas`. Comprobado con una prueba
-de seguridad: un CLIENTE recibe **403** al publicar o borrar una reseña. Queda pendiente de
-corregir en un cambio aparte; hasta entonces las dos filas de reseñas de la tabla describen lo
-que el servidor hace hoy.
+**Reseñas (INC01, #27).** Las reglas de reseñas van en `SecurityConfig` antes de las de
+`/api/productos/**`, que antes también las alcanzaban y devolvían **403** al CLIENTE. Las cubre
+[`ResenaSecurityTest`](proyecto-analisis/ProyectoTiendaDrop/src/test/java/com/dropStore/DropStore/controlador/ResenaSecurityTest.java).
 
 ---
 
