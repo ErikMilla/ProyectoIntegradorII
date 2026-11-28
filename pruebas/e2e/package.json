@@ -1,0 +1,11 @@
+{
+  "name": "dropstore-pruebas-e2e",
+  "private": true,
+  "description": "CP17, CP18 y CP22 de punta a punta con Playwright (perfil local H2).",
+  "scripts": {
+    "cp17-cp18-cp22": "node cp17-cp18-cp22.js"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  }
+}
