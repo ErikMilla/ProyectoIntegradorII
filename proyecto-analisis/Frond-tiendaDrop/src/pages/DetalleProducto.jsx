@@ -2,10 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import InventoryService from '../services/inventory.service';
 import ResenaService from '../services/resena.service';
+import StockService from '../services/stock.service';
 import { mensajeDeError, resolverUrlImagen } from '../services/api';
 import { useCart } from '../context/cart';
 import { useAuth } from '../context/auth';
 import { soles, talla as formatoTalla } from '../utils/formato';
+import { varianteTrasActualizar } from '../utils/stockFicha';
 import Estrellas from '../components/Estrellas';
 import Icon from '../components/Icon';
 import '../css/DetalleProducto.css';
@@ -82,6 +84,28 @@ function DetalleProducto() {
     cargarResenas();
     return () => { vigente = false; };
   }, [id, cargarResenas]);
+
+  // Stock en tiempo real (INC07): cuando se vende o repone en otro lugar, se
+  // vuelven a pedir las variantes sin mostrar el estado de carga y sin cambiar
+  // la talla que el visitante eligió.
+  useEffect(() => {
+    let vigente = true;
+    const cancelar = StockService.suscribir(async () => {
+      try {
+        const { data } = await InventoryService.getProductoConVariantes(id);
+        if (!vigente) return;
+        const nuevas = data.variantes || [];
+        setVariantes(nuevas);
+        setVarianteId((actual) => varianteTrasActualizar(nuevas, actual));
+      } catch {
+        // Se mantiene lo que ya se muestra; el servidor valida el stock al comprar.
+      }
+    });
+    return () => {
+      vigente = false;
+      cancelar();
+    };
+  }, [id]);
 
   const tallas = useMemo(
     () => [...variantes].sort((a, b) => Number(a.talla) - Number(b.talla)),
