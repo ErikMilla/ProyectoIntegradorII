@@ -20,7 +20,9 @@ set "MYSQL_BIN=C:\Program Files\MySQL\MySQL Server 9.4\bin"
 set "ORIGEN=bd_tiendadrop"
 set "PRUEBA=bd_tiendadrop_prueba"
 set "DESTINO=C:\respaldos"
-if "%DB_USER%"=="" (set "USUARIO=root") else (set "USUARIO=%DB_USER%")
+REM Usuario administrativo, distinto del de la aplicacion (DB_USER=dropstore_app no
+REM puede crear bases ni leer triggers). Ver README, seccion 4.
+if "%BACKUP_DB_USER%"=="" (set "USUARIO=root") else (set "USUARIO=%BACKUP_DB_USER%")
 
 REM Proteccion: la base de destino nunca puede ser la real.
 if /i "%PRUEBA%"=="%ORIGEN%" (
