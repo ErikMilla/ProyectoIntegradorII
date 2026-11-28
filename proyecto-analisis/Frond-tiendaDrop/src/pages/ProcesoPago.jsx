@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/cart';
 import { useAuth } from '../context/auth';
 import VentaService from '../services/venta.service';
 import { mensajeDeError, resolverUrlImagen } from '../services/api';
 import { soles, talla } from '../utils/formato';
+import { debeVolverAlCarrito } from '../utils/checkout';
 import Icon from '../components/Icon';
 import '../css/Checkout.css';
 
@@ -32,6 +33,9 @@ function ProcesoPago() {
 
   const [procesando, setProcesando] = useState(false);
   const [error, setError] = useState('');
+  // Se marca antes de vaciar el carrito para que el efecto de abajo no
+  // reemplace la confirmación por /carrito (INC06).
+  const compraTerminada = useRef(false);
 
   const [formData, setFormData] = useState({
     nombre: currentUser ? [currentUser.nombre, currentUser.apellido].filter(Boolean).join(' ') : '',
@@ -107,6 +111,7 @@ function ProcesoPago() {
 
     try {
       const respuesta = await VentaService.crearVenta(ventaDto);
+      compraTerminada.current = true;
       clearCart();
       navigate('/orden-confirmada', { state: { ventaId: respuesta.data?.id, total: totalFinal } });
     } catch (errorPeticion) {
@@ -118,10 +123,12 @@ function ProcesoPago() {
     }
   };
 
-  // Si el carrito quedo vacio, se vuelve al carrito. Va en un efecto porque
-  // navegar durante el render provoca una advertencia de React.
+  // Si se entra a pagar con el carrito vacio, se vuelve al carrito. Va en un
+  // efecto porque navegar durante el render provoca una advertencia de React.
+  // Tras una compra el carrito tambien queda vacio, pero ahi se va a la
+  // confirmacion (INC06).
   useEffect(() => {
-    if (cartItems.length === 0) navigate('/carrito', { replace: true });
+    if (debeVolverAlCarrito(cartItems.length, compraTerminada.current)) navigate('/carrito', { replace: true });
   }, [cartItems.length, navigate]);
 
   if (cartItems.length === 0) return null;
