@@ -242,7 +242,9 @@ function PuntoDeVenta({ onVentaRegistrada }) {
       setBusqueda('');
       setCupon('');
       setCuponAplicado(false);
-      setMensaje('Venta registrada. La factura ya está disponible en Facturación.');
+      // No se nombra una sección: el POS lo usan ADMIN (que vuelve a Facturación) y
+      // VENDEDOR (que vuelve a su Historial y no tiene Facturación). INC08.
+      setMensaje('Venta registrada.');
       await cargarDatos();
       if (onVentaRegistrada) onVentaRegistrada();
     } catch (error) {
