@@ -5,7 +5,7 @@
 | CP | Quién | Qué hace | Qué comprueba |
 |---|---|---|---|
 | CP18 | Visitante + VENDEDOR | El visitante deja abierta la ficha de Adidas Campus 00s (talla 42). El VENDEDOR vende 1 par en el POS | El backend emite el evento SSE `stock` y la ficha baja 1 unidad **sin recargar** |
-| CP22 | VENDEDOR | Busca esa venta en su historial | La fila muestra número, fecha, canal y total, y tiene una acción para abrir o imprimir el comprobante |
+| CP22 | VENDEDOR + ADMIN | El POS avisa la venta; el VENDEDOR la busca en su historial; el ADMIN (con segundo factor) la abre en *Facturación* y pulsa Imprimir | El aviso del POS no remite a *Facturación* (el VENDEDOR no tiene esa sección, INC08); la fila del historial muestra número, fecha, canal y total; el comprobante de ADMIN muestra número, fecha, canal y total, e Imprimir llama a `window.print` |
 | CP17 | CLIENTE | Compra 1 par con la tarjeta de demostración | Ve la confirmación del pedido y lo encuentra en *Mis pedidos* con producto, talla y total |
 
 Al final imprime `Aprobado` o `Falla` por cada comprobación y termina con código 1 si alguna falla.
@@ -23,6 +23,11 @@ $env:SPRING_PROFILES_ACTIVE = 'local'
 $env:SPRING_DATASOURCE_URL  = 'jdbc:h2:file:C:/temp/dropstore-e2e/db;MODE=MySQL;AUTO_SERVER=TRUE'
 $env:DROPSTORE_SEED = 'true'
 $env:DROPSTORE_DEMO_PASSWORD = Read-Host 'Clave de demostración (12+ caracteres)'
+$env:DROPSTORE_ADMIN_EMAIL = 'admin@dropstore.local'
+# Segundo factor del ADMIN: el código se muestra en pantalla y no se envía ningún correo.
+# Solo en esta base de prueba; nunca en producción.
+$env:MFA_DEV_CODE_ENABLED = 'true'
+$env:MFA_MAIL_ENABLED = 'false'
 $env:SERVER_PORT = '8083'
 $env:DROPSTORE_CORS_ALLOWED_ORIGIN = 'http://localhost:5175'
 .\mvnw.cmd spring-boot:run
@@ -45,5 +50,9 @@ node cp17-cp18-cp22.js http://localhost:5175 http://localhost:8083 C:\ruta\de\sa
 ```
 
 La clave solo se lee de `CLAVE_DEMO`; no se guarda en ningún archivo. El script usa las
-cuentas que crea la carga de ejemplo: `vendedor@dropstore.local` y `cliente@dropstore.local`.
-Espera la variante 242 (Adidas Campus 00s, talla 42) con stock inicial; con una base nueva tiene 8.
+cuentas que crea la carga de ejemplo: `vendedor@dropstore.local`, `cliente@dropstore.local` y el ADMIN
+(`ADMIN_CORREO`, por defecto `admin@dropstore.local`). Necesita al menos 2 pares de la variante 242
+(Adidas Campus 00s, talla 42); con una base nueva tiene 8.
+
+El backend no entrega otro código de segundo factor al mismo usuario antes de 60 s. Si se repite
+la prueba enseguida, el script espera 61 s y reintenta el ingreso del ADMIN una vez.
