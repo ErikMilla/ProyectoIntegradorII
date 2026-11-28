@@ -66,7 +66,7 @@ function Navbar() {
             <input
               id="product-search"
               type="search"
-              placeholder="Buscar modelo o marca"
+              placeholder="Ej.: Nike blancas talla 40"
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
             />

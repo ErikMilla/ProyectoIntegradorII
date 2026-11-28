@@ -7,7 +7,7 @@ Fecha de verificación: 2 de octubre de 2026.
 | Código | Evidencia disponible |
 |---|---|
 | RF01 | Registro, inicio y cierre de sesión; perfiles ADMIN, ALMACENERO, VENDEDOR y CLIENTE con permisos comprobados en el servidor. |
-| RF02 | Catálogo, productos más vendidos según ventas reales y filtros por género, marca, categoría, precio y talla. La búsqueda NLP queda reservada para la última etapa. |
+| RF02 | Catálogo, productos más vendidos según ventas reales y filtros por género, marca, categoría, precio y talla. Búsqueda en lenguaje natural: la frase se convierte en esos mismos filtros (`GET /api/productos/interpretar`, pruebas en `InterpreteConsultaTest` y `BusquedaControllerIntegrationTest`). |
 | RF03 | Carrito, subtotal, cupón `DROP10`, envío, impuestos, comprobante y descuento transaccional de stock. El servidor vuelve a calcular todos los importes. |
 | RF04 | POS con cliente, lector USB/entrada manual y cámara mediante BarcodeDetector cuando el navegador lo permite. Existe alternativa manual en navegadores sin esa API. |
 | RF05 | Alta, edición y eliminación segura de productos y variantes. Los productos con ventas históricas no pueden destruirse. |
@@ -40,6 +40,6 @@ npm run build
 npm audit --omit=dev
 ```
 
-## Pendiente acordado
+## Búsqueda en lenguaje natural
 
-La búsqueda inteligente en lenguaje natural (NLP) se implementará en la última etapa. La búsqueda convencional por nombre y modelo continúa disponible.
+Implementada por reglas, sin servicios externos. Reconoce género, marca, categoría, color, talla, rango de precio y orden ("baratas" ordena de menor a mayor precio); el resto de palabras se busca en nombre, modelo y marca. El catálogo muestra lo que entendió y cada filtro se puede quitar.
