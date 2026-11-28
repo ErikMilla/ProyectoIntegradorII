@@ -31,6 +31,11 @@ const InventoryService = {
     return api.get(consulta ? `/productos?${consulta}` : '/productos');
   },
   getMasVendidos: () => api.get('/productos/mas-vendidos'),
+  /**
+   * Convierte una frase ("nike blancas talla 38 hasta 400") en filtros:
+   * { genero, marca, categoria, color, talla, precioMinimo, precioMaximo, orden, texto }.
+   */
+  interpretarBusqueda: (consulta) => api.get('/productos/interpretar', { params: { q: consulta } }),
 
   /**
    * Crear producto requiere multipart porque incluye la foto.

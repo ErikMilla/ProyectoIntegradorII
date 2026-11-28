@@ -21,6 +21,10 @@ public interface DetalleProductoRepository extends JpaRepository<detalle_product
 
     List<detalle_producto> findByGeneroAndMarca_nombre(String genero, String nombre);
 
+    /** Colores tal como están registrados; el buscador los usa como vocabulario. */
+    @Query("select distinct d.color from detalle_producto d where d.color is not null")
+    List<String> findColoresDistintos();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select d from detalle_producto d where d.id = :id")
     Optional<detalle_producto> findByIdForUpdate(@Param("id") Long id);

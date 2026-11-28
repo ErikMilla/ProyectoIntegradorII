@@ -290,6 +290,7 @@ pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
 | `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros | Público |
 | `GET` | `/api/productos/{id}` | Un producto con todas sus tallas | Público |
 | `GET` | `/api/productos/mas-vendidos` | Los 8 productos más vendidos, según ventas reales | Público |
+| `GET` | `/api/productos/interpretar?q=` | Convierte una frase en filtros del catálogo *(búsqueda en lenguaje natural, máx. 200 caracteres)* | Público |
 | `POST` | `/api/productos` | Crear producto *(multipart: `file` + `data`)* | ADMIN, ALMACENERO |
 | `PUT` · `DELETE` | `/api/productos/{id}` | Editar o eliminar | ADMIN, ALMACENERO |
 | `GET` | `/api/marcas`, `/api/categorias` | Catálogos simples | Público |
@@ -416,12 +417,22 @@ Ya hay un backend corriendo. Ciérralo o usa otro puerto con `SERVER_PORT=8082`.
 
 ## 10. Qué falta por hacer
 
-De los requerimientos acordados, queda únicamente la **búsqueda inteligente en lenguaje
-natural (NLP)**, que se desarrollará en la última etapa. Mientras tanto, el buscador
-convencional por nombre o modelo ya funciona.
+Todos los requerimientos acordados están implementados, incluida la **búsqueda en lenguaje
+natural (NLP)**. El buscador acepta frases como *"zapatillas Nike blancas para mujer talla 38
+de menos de 400 soles"*. `GET /api/productos/interpretar` las convierte en los filtros del
+catálogo: género, marca, categoría, color, talla, rango de precio y orden. Las palabras que
+no encajan en ningún filtro se buscan en el nombre, modelo y marca. El catálogo muestra lo
+que entendió ("Entendimos … como Mujer · Nike · Blanco · Talla 38 · Hasta S/ 400") y cada
+filtro aparece como un chip que se puede quitar.
+
+El intérprete (`InterpreteConsulta`) funciona por reglas y sin servicios externos: normaliza
+tildes y plurales ("blancas" → Blanco, "urbanas" → Urbano) y toma las marcas, categorías y
+colores de la base de datos, así que una marca nueva se reconoce sin tocar código. No usa un
+modelo de lenguaje, por lo que no entiende sinónimos fuera de su vocabulario ni frases
+ambiguas. Si menciona dos valores del mismo filtro ("nike o adidas"), ese filtro no se aplica.
 
 El lector de códigos del POS, la protección del servidor, los permisos por rol y el resto de
-los requerimientos están implementados. La disponibilidad del 99 % y la certificación formal
+los requerimientos también están implementados. La disponibilidad del 99 % y la certificación formal
 en Safari deben validarse sobre el entorno donde finalmente se despliegue el sistema.
 
 ---
