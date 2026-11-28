@@ -46,6 +46,17 @@ public class ProductoController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final int MAX_DESCRIPCION = 1000;
 
+    /**
+     * Un modelo Unisex también es para hombre y para mujer, así que aparece en
+     * ambos filtros. Niños no lo incluye: las tallas Unisex son de adulto.
+     */
+    static List<String> generosIncluidos(String genero) {
+        if ("Hombre".equals(genero) || "Mujer".equals(genero)) {
+            return List.of(genero, "Unisex");
+        }
+        return List.of(genero);
+    }
+
     private static boolean descripcionDemasiadoLarga(ProductoRegistroDTO producto) {
         return producto.getDescripcion() != null && producto.getDescripcion().length() > MAX_DESCRIPCION;
     }
@@ -178,9 +189,9 @@ public class ProductoController {
         boolean hasMarca = marcaFiltro != null && !marcaFiltro.isEmpty();
         
         if (hasGenero && hasMarca) {
-            detalles = detalleProductoRepository.findByGeneroAndMarca_nombre(generoFiltro, marcaFiltro);
+            detalles = detalleProductoRepository.findByGeneroInAndMarca_nombre(generosIncluidos(generoFiltro), marcaFiltro);
         } else if (hasGenero) {
-            detalles = detalleProductoRepository.findByGenero(generoFiltro);
+            detalles = detalleProductoRepository.findByGeneroIn(generosIncluidos(generoFiltro));
         } else if (hasMarca) {
             detalles = detalleProductoRepository.findByMarca_nombre(marcaFiltro);
         } else {

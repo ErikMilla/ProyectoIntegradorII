@@ -287,7 +287,7 @@ pantalla). «Sesión» significa cualquier usuario que haya iniciado sesión.
 
 | Método | Ruta | Qué hace | Acceso |
 |---|---|---|---|
-| `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros | Público |
+| `GET` | `/api/productos?genero=&marca=` | Variantes del catálogo, con filtros *(Hombre y Mujer incluyen los modelos Unisex)* | Público |
 | `GET` | `/api/productos/{id}` | Un producto con todas sus tallas | Público |
 | `GET` | `/api/productos/mas-vendidos` | Los 8 productos más vendidos, según ventas reales | Público |
 | `POST` | `/api/productos` | Crear producto *(multipart: `file` + `data`)* | ADMIN, ALMACENERO |
