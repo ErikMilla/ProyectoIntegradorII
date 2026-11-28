@@ -9,9 +9,14 @@ import java.util.Date;
  *
  * La reseña va contra el PRODUCTO (el modelo), no contra una talla concreta:
  * a quien lee le interesa la opinión de la zapatilla, no la del 42.
+ *
+ * Un cliente opina una sola vez por producto. ResenaController ya lo revisa
+ * antes de guardar; la restricción única lo garantiza también en la base,
+ * por ejemplo si llegan dos envíos casi al mismo tiempo.
  */
 @Entity
-@Table(name = "resena")
+@Table(name = "resena", uniqueConstraints = @UniqueConstraint(
+        name = "uk_resena_producto_usuario", columnNames = {"producto_id", "usuario_id"}))
 public class Resena {
 
     @Id
