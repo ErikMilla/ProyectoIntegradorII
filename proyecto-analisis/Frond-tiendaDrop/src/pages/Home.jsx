@@ -4,6 +4,7 @@ import InventoryService from '../services/inventory.service';
 import ResenaService from '../services/resena.service';
 import ContentService from '../services/content.service';
 import { agruparPorProducto } from '../utils/productGrouping';
+import { generosIncluidos } from '../utils/genero';
 import { resolverUrlImagen } from '../services/api';
 import { resumenTallas, soles } from '../utils/formato';
 import ProductCard, { ProductCardSkeleton } from '../components/ProductCard';
@@ -87,7 +88,8 @@ function Home() {
 
   const categorias = useMemo(() => [
     ...GENEROS.map((genero) => {
-      const delGenero = disponibles.filter((producto) => producto.variantes.some((v) => v.genero === genero));
+      const incluidos = generosIncluidos(genero);
+      const delGenero = disponibles.filter((producto) => producto.variantes.some((v) => incluidos.includes(v.genero)));
       return { label: genero, to: `/catalogo/${genero}`, total: delGenero.length };
     }),
     { label: 'Todo', to: '/catalogo', total: disponibles.length },

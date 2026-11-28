@@ -15,11 +15,11 @@ public interface DetalleProductoRepository extends JpaRepository<detalle_product
 
     List<detalle_producto> findByProductoId(Long productoId);
 
-    List<detalle_producto> findByGenero(String genero);
-
     List<detalle_producto> findByMarca_nombre(String nombre);
 
-    List<detalle_producto> findByGeneroAndMarca_nombre(String genero, String nombre);
+    List<detalle_producto> findByGeneroIn(List<String> generos);
+
+    List<detalle_producto> findByGeneroInAndMarca_nombre(List<String> generos, String nombre);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select d from detalle_producto d where d.id = :id")

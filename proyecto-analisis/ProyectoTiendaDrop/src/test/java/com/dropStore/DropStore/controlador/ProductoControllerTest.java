@@ -130,4 +130,22 @@ class ProductoControllerTest {
         assertEquals(400, respuesta.getStatusCode().value());
         assertEquals("Debe especificar una categoría.", respuesta.getBody());
     }
+
+    @Test
+    void hombreYMujerIncluyenLosModelosUnisex() {
+        controller.getProductos("Hombre", null);
+        verify(detalleProductoRepository).findByGeneroIn(List.of("Hombre", "Unisex"));
+
+        controller.getProductos("Mujer", "Nike");
+        verify(detalleProductoRepository).findByGeneroInAndMarca_nombre(List.of("Mujer", "Unisex"), "Nike");
+    }
+
+    @Test
+    void ninosYUnisexSoloTraenSuPropioGenero() {
+        controller.getProductos("Niños", null);
+        verify(detalleProductoRepository).findByGeneroIn(List.of("Niños"));
+
+        controller.getProductos("Unisex", null);
+        verify(detalleProductoRepository).findByGeneroIn(List.of("Unisex"));
+    }
 }
